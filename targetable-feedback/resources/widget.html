@@ -1,0 +1,247 @@
+<!--
+  Widget template for targetable draft feedback skill.
+
+  Starting point from the v2 + revision 1 prototype built in chat.
+
+  What gets parameterized when Claude uses this:
+  - The h1 title (the document title)
+  - The optional rev-pill ("rev 1", "rev 2", etc - only shown on revisions)
+  - The sub-line text
+  - Each <div class="unit"> block with its content, data-id, and data-snippet
+  - Section headers (<h3>) between unit groups
+  - The "changed" CSS class + tag on units that were modified in the current revision
+
+  Reusable across all draft types: just substitute the unit content.
+
+  Pass to visualize:show_widget as widget_code.
+-->
+
+<style>
+.doc { padding: 1rem 0; font-family: var(--font-sans); color: var(--color-text-primary); }
+.doc h1 { font-size: 22px; font-weight: 500; margin: 0 0 0.25rem; }
+.doc .sub { font-size: 13px; color: var(--color-text-tertiary); margin: 0 0 1.5rem; }
+.doc .rev-pill { display: inline-block; font-size: 11px; padding: 1px 8px; background: var(--color-background-info); color: var(--color-text-info); border-radius: var(--border-radius-md); margin-left: 8px; vertical-align: 2px; font-weight: 500; }
+.doc h3 { font-size: 12px; font-weight: 500; margin: 1.75rem 0 0.5rem; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.06em; }
+.unit {
+  position: relative;
+  padding: 7px 12px 7px 36px;
+  margin: 1px -12px;
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  line-height: 1.6;
+  font-size: 15px;
+  border-left: 2px solid transparent;
+  transition: background 0.12s;
+}
+.unit:hover { background: var(--color-background-secondary); }
+.unit.open { background: var(--color-background-secondary); }
+.unit.marked { background: var(--color-background-info); border-left-color: var(--color-border-info); }
+.unit.marked:hover { background: var(--color-background-info); }
+.unit.changed { border-left-color: var(--color-border-success); }
+.unit .num {
+  position: absolute;
+  left: 10px;
+  top: 8px;
+  font-size: 11px;
+  color: var(--color-text-tertiary);
+  font-family: var(--font-mono);
+}
+.unit.marked .num { color: var(--color-text-info); }
+.unit.changed .num { color: var(--color-text-success); }
+.unit.bullet::before {
+  content: "\2022";
+  margin-right: 8px;
+  color: var(--color-text-tertiary);
+}
+.unit.marked.bullet::before { color: var(--color-text-info); }
+.changed-tag { display: inline-block; font-size: 10px; padding: 1px 6px; background: var(--color-background-success); color: var(--color-text-success); border-radius: 4px; margin-left: 6px; vertical-align: 2px; text-transform: uppercase; letter-spacing: 0.04em; font-weight: 500; }
+.guidance-wrap {
+  display: none;
+  margin-top: 10px;
+  position: relative;
+}
+.unit.open .guidance-wrap, .unit.marked .guidance-wrap { display: block; }
+.guidance-input {
+  width: 100%;
+  padding: 8px 28px 8px 10px;
+  border: 0.5px solid var(--color-border-secondary);
+  border-radius: var(--border-radius-md);
+  font-size: 13px;
+  font-family: var(--font-sans);
+  background: var(--color-background-primary);
+  color: var(--color-text-primary);
+  box-sizing: border-box;
+  resize: none;
+  min-height: 36px;
+  line-height: 1.5;
+  overflow: hidden;
+}
+.guidance-input:focus { outline: none; border-color: var(--color-border-info); box-shadow: 0 0 0 1px var(--color-border-info); }
+.clear-x {
+  position: absolute;
+  right: 6px;
+  top: 6px;
+  background: none;
+  border: none;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+.clear-x:hover { color: var(--color-text-primary); background: var(--color-background-secondary); }
+.bar {
+  margin-top: 2rem;
+  padding: 12px 0;
+  border-top: 0.5px solid var(--color-border-tertiary);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.count { font-size: 13px; color: var(--color-text-secondary); }
+.actions { display: flex; align-items: center; gap: 6px; }
+.clear-all { font-size: 12px; color: var(--color-text-tertiary); background: none; border: none; cursor: pointer; padding: 4px 8px; }
+.clear-all:hover { color: var(--color-text-primary); }
+.clear-all:disabled { visibility: hidden; }
+</style>
+
+<h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);">
+  Interactive draft with per-unit feedback. Tap any unit to add guidance. Apply when ready.
+</h2>
+
+<div class="doc">
+  <h1>{{DOCUMENT_TITLE}}<!-- optional: <span class="rev-pill">rev N</span> --></h1>
+  <p class="sub">{{SUB_LINE}}</p>
+
+  <!--
+    UNIT BLOCK PATTERN
+    Repeat per addressable unit. data-id should be stable and sequential.
+    data-snippet is a short identifier of the unit content used in sendPrompt payload.
+    Add class "bullet" to bullet units. Add class "changed" + <span class="changed-tag">changed</span> to units modified in the current revision.
+  -->
+
+  <div class="unit" data-id="N" data-snippet="{{SHORT_IDENTIFIER}}">
+    <span class="num">N</span>{{UNIT_CONTENT}}
+    <div class="guidance-wrap">
+      <textarea class="guidance-input" placeholder="How should this change?"></textarea>
+      <button class="clear-x" aria-label="Clear guidance"><i class="ti ti-x" style="font-size:14px;" aria-hidden="true"></i></button>
+    </div>
+  </div>
+
+  <!--
+    SECTION HEADER PATTERN
+    Use between groups of units to denote logical sections.
+  -->
+  <h3>{{SECTION_NAME}}</h3>
+
+  <!--
+    BULLET UNIT EXAMPLE
+  -->
+  <div class="unit bullet" data-id="N" data-snippet="{{SHORT_IDENTIFIER}}">
+    <span class="num">N</span>{{UNIT_CONTENT}}
+    <div class="guidance-wrap">
+      <textarea class="guidance-input" placeholder="How should this change?"></textarea>
+      <button class="clear-x" aria-label="Clear guidance"><i class="ti ti-x" style="font-size:14px;" aria-hidden="true"></i></button>
+    </div>
+  </div>
+
+  <!--
+    CHANGED UNIT EXAMPLE (rendered on revisions)
+  -->
+  <div class="unit bullet changed" data-id="N" data-snippet="{{SHORT_IDENTIFIER}}">
+    <span class="num">N</span>{{REVISED_UNIT_CONTENT}} <span class="changed-tag">changed</span>
+    <div class="guidance-wrap">
+      <textarea class="guidance-input" placeholder="How should this change?"></textarea>
+      <button class="clear-x" aria-label="Clear guidance"><i class="ti ti-x" style="font-size:14px;" aria-hidden="true"></i></button>
+    </div>
+  </div>
+
+  <div class="bar">
+    <span class="count">No guidance added</span>
+    <div class="actions">
+      <button class="clear-all" id="clearAll" disabled>Clear all</button>
+      <button id="applyBtn" disabled>Apply edits</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const guidance = new Map();
+function autosize(el) { el.style.height = 'auto'; el.style.height = Math.max(36, el.scrollHeight) + 'px'; }
+
+document.querySelectorAll('.unit').forEach(unit => {
+  unit.addEventListener('click', (e) => {
+    if (e.target.tagName === 'TEXTAREA' || e.target.closest('.clear-x')) return;
+    document.querySelectorAll('.unit.open').forEach(u => {
+      if (u !== unit && !u.classList.contains('marked')) u.classList.remove('open');
+    });
+    unit.classList.add('open');
+    const input = unit.querySelector('.guidance-input');
+    setTimeout(() => { input.focus(); autosize(input); }, 30);
+  });
+});
+
+document.querySelectorAll('.guidance-input').forEach(input => {
+  input.addEventListener('click', e => e.stopPropagation());
+  input.addEventListener('input', () => {
+    autosize(input);
+    const unit = input.closest('.unit');
+    const id = unit.dataset.id;
+    const v = input.value.trim();
+    if (v) { guidance.set(id, input.value); unit.classList.add('marked'); }
+    else { guidance.delete(id); unit.classList.remove('marked'); }
+    updateBar();
+  });
+  input.addEventListener('blur', () => {
+    const unit = input.closest('.unit');
+    if (!input.value.trim()) unit.classList.remove('open');
+  });
+  input.addEventListener('keydown', (e) => { if (e.key === 'Escape') input.blur(); });
+});
+
+document.querySelectorAll('.clear-x').forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const unit = btn.closest('.unit');
+    const input = unit.querySelector('.guidance-input');
+    input.value = '';
+    autosize(input);
+    guidance.delete(unit.dataset.id);
+    unit.classList.remove('marked', 'open');
+    updateBar();
+  });
+});
+
+function updateBar() {
+  const n = guidance.size;
+  document.querySelector('.count').textContent = n === 0 ? 'No guidance added' : `${n} unit${n === 1 ? '' : 's'} marked`;
+  document.getElementById('applyBtn').disabled = n === 0;
+  document.getElementById('clearAll').disabled = n === 0;
+}
+
+document.getElementById('clearAll').addEventListener('click', () => {
+  guidance.clear();
+  document.querySelectorAll('.unit').forEach(u => {
+    u.classList.remove('marked', 'open');
+    const input = u.querySelector('.guidance-input');
+    input.value = '';
+    autosize(input);
+  });
+  updateBar();
+});
+
+document.getElementById('applyBtn').addEventListener('click', () => {
+  if (guidance.size === 0) return;
+  const lines = ['Revise the draft based on this per-unit guidance:', ''];
+  guidance.forEach((text, id) => {
+    const unit = document.querySelector(`.unit[data-id="${id}"]`);
+    const snippet = unit.dataset.snippet;
+    lines.push(`Unit ${id} ("${snippet}"): ${text}`);
+  });
+  lines.push('');
+  lines.push('Apply only these changes. Leave unmarked units exactly as they are. Return the revised draft, keeping the same section structure and unit numbering so I can iterate.');
+  sendPrompt(lines.join('\n'));
+});
+</script>
