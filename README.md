@@ -21,11 +21,16 @@ The skill does not fire on one-shot drafting requests, single-edit feedback like
 
 ## Install
 
-1. Clone or download this repo.
-2. From the repo root, create a ZIP of the `targetable-feedback/` directory. Unzipping the archive should produce a single `targetable-feedback/` folder containing `SKILL.md` and `resources/`. On macOS: right-click `targetable-feedback/` in Finder and choose Compress.
-3. In claude.ai, go to Settings, then find the Skills section (the exact menu path varies by claude.ai version), and upload the ZIP.
+1. Download [`targetable-feedback.zip`](https://github.com/jordanl17/claude-targettable-feedback/releases/latest/download/targetable-feedback.zip) from the latest release.
+2. In claude.ai, go to Settings, then find the Skills section (the exact menu path varies by claude.ai version), and upload the ZIP.
 
-To iterate on the skill locally, edit `targetable-feedback/SKILL.md` or `targetable-feedback/resources/widget.html` and re-upload the ZIP.
+### Build from source
+
+If you want to install from a specific commit or modify the skill locally:
+
+1. Clone this repo.
+2. From the repo root, create a ZIP of the `targetable-feedback/` directory. Unzipping the archive should produce a single `targetable-feedback/` folder containing `SKILL.md` and `resources/`. On macOS: right-click `targetable-feedback/` in Finder and choose Compress.
+3. Upload the ZIP via claude.ai Settings as above.
 
 ## Limitations
 
