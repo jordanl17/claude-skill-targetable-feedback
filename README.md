@@ -6,12 +6,14 @@
 ![updated](https://img.shields.io/github/release-date/jordanl17/claude-skill-targetable-feedback?label=updated&color=blue)
 ![license](https://img.shields.io/github/license/jordanl17/claude-skill-targetable-feedback?color=blue)
 
-A Claude skill for providing per-section feedback on multi-section drafts without copy-pasting or describing locations in prose. The draft renders as an interactive widget where each paragraph, bullet, or sub-bullet is individually tappable, accepts inline guidance, and applies all marked feedback in a single revision pass that touches only the marked units. It exists because chat is a poor medium for input that has shape, and per-section feedback has shape.
+Iterate on a Claude draft section-by-section instead of writing a paragraph that describes which other paragraph to change. Tap any unit, say what you want different, hit apply - the marked sections rewrite in a single revision pass and everything else comes back byte-identical.
 
 > [!NOTE]
 > The skill works best in **[claude.ai](https://claude.ai) on the web**. The Claude desktop app currently has rendering quirks where the widget can stay in a loading state after generation - usually fixed by refreshing the window. The web app is the recommended environment until those issues are resolved.
 
 ## In action
+
+Three changes pending. One apply button. No location-describing required.
 
 <p align="center">
   <img src="demo/targetable-feedback.gif" alt="Demo: typing a prompt, Claude renders an interactive widget, user adds per-section guidance, widget re-renders with changed sections marked." width="800">
@@ -23,7 +25,9 @@ A Claude skill for providing per-section feedback on multi-section drafts withou
   <img src="demo/comparison.png" alt="Side-by-side comparison. Left: a user describing in prose which paragraphs to change. Right: the widget with feedback attached directly to specific sections via inline textareas and a remove checkbox." width="900">
 </p>
 
-Per-section feedback has shape, but chat collapses it into prose. Claude already knows the structure of its output - this skill surfaces it as an addressable widget so guidance attaches directly to the unit it's about.
+Today, iterating on a multi-section draft means typing things like *"in the second paragraph - actually maybe the third, I can't remember - lean more into the productivity angle, and drop the last bullet."* Then Claude has to map your prose onto its own structure and hope it landed on the right unit. Both sides do double work and ambiguity creeps in fast.
+
+This skill removes the location-describing step. Claude already knows the structure of what it wrote - surfacing that as an addressable widget means your guidance attaches directly to the unit it's about. No prose-mapping, no ambiguity, one revision pass.
 
 ## When it activates
 
