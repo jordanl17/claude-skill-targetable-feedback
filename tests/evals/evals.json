@@ -1,0 +1,59 @@
+{
+  "skill_name": "targetable-feedback",
+  "evals": [
+    {
+      "id": "trigger-generative-fires",
+      "prompt": "I'm migrating our authentication system off of AWS Cognito onto Auth0. Draft an RFC covering motivation, current state, proposed approach, migration phases, and rollback strategy. Let me iterate on each section once you've written it.",
+      "expected_output": "Skill activates: SKILL.md is read, resources/widget.html is referenced, widget HTML is generated and a visualize:show_widget call is attempted (or the HTML is otherwise emitted).",
+      "files": []
+    },
+    {
+      "id": "trigger-single-edit-skips",
+      "prompt": "Earlier in this conversation you replied:\n\n---\nHere are the on-call escalation rules for the payments squad:\n\n- Primary on-call responds to PagerDuty within 5 minutes.\n- If unacknowledged, secondary on-call is paged within a day.\n- Severity-1 incidents trigger an automatic war-room bridge.\n- Post-incident review is due within 48 hours of resolution.\n---\n\nFix bullet 2 to say 'within 24 hours' instead of 'within a day'. That's the only change.",
+      "expected_output": "Skill does NOT activate. The model edits the bullet inline and returns the corrected list as prose - no widget HTML, no show_widget call.",
+      "files": []
+    },
+    {
+      "id": "trigger-code-task-skips",
+      "prompt": "Write a Python function called `dedupe_preserving_order` that takes a list of hashable items and returns a new list with duplicates removed, preserving the order of first occurrence. Include a short docstring and one example in a comment.",
+      "expected_output": "Skill does NOT activate. The model returns a Python function. No widget HTML.",
+      "files": []
+    },
+    {
+      "id": "verbatim-exact-prose",
+      "prompt": "Here's a draft pitch I just wrote. Let me iterate on this section by section.\n\n---\nAcme Notebook 2026 is our most ambitious release yet. We are redefining what a notebook can be for everyday work.\n\nBuilt for the modern knowledge worker, Acme Notebook 2026 brings a clean, focused writing experience that adapts to how you actually think.\n\nThree new features: smart linking between notes, an AI-powered outline view, and seamless mobile sync that just works.\n\nWhether you are a writer, a researcher, or a student, you will feel at home from the first page. Acme Notebook 2026 is designed for everyone who thinks in writing.\n\nAvailable March 15th on web, desktop, and mobile. Sign up at acme.com to be the first to know.",
+      "expected_output": "Skill activates retroactively. Widget HTML contains exactly 5 .unit divs whose text content matches each input paragraph byte-for-byte. No rewording, expansion, sharpening, or summarization during conversion.",
+      "files": []
+    },
+    {
+      "id": "verbatim-awkward-phrasing",
+      "prompt": "I've been working on these OKRs. Make that targetable.\n\n---\nGoal 1: reduce time. Reducing time good.\n\nGoal 2: ship the thing that ships. We ship it by Q3.\n\nGoal 3: customers happy or sad? Make them happy. Survey says it.\n\nGoal 4: monies in. Monies up. Track in dashboard which we build.\n\nGoal 5: team happy too. Not just customers. Both.",
+      "expected_output": "Skill activates. Widget HTML preserves the deliberately awkward phrasing verbatim - no cleanup, no smoothing, no 'improvement'. Exactly 5 units.",
+      "files": []
+    },
+    {
+      "id": "subunits-2-level-nesting",
+      "prompt": "Here's a draft Q3 plan. Let me give feedback on each part.\n\n---\nPlatform team Q3 plan.\n\n- Reduce p95 API latency:\n  - Profile the slowest 10 endpoints and find the worst offenders.\n  - Migrate session lookups off Postgres onto Redis.\n  - Add request-coalescing to the user-profile endpoint.\n- Cut deploy time below 5 minutes:\n  - Parallelize the integration test suite across 4 runners.\n  - Cache pnpm install between CI jobs.\n- Improve on-call experience:\n  - Audit every page that fired last quarter and tag the actionable vs noise.\n  - Write three new runbooks for the most-common pages.\n  - Rotate secondary on-call weekly instead of monthly.",
+      "expected_output": "Skill activates. Widget HTML contains 3 top-level bulleted units with data-id='1','2','3'. Each parent contains sub-units with data-id='1.1','1.2','1.3' etc. No 3-level nesting. Each sub-unit has its own data-snippet attribute. The hierarchical IDs use dot notation, not dashes or other separators.",
+      "files": []
+    },
+    {
+      "id": "removal-renumbers-siblings",
+      "prompt": "I'm in the middle of iterating on a draft with you. The current widget shows five units about a product launch announcement:\n\nUnit 1: \"Acme Notebook 2026 is our most ambitious release yet.\"\nUnit 2: \"Built for the modern knowledge worker, Acme Notebook 2026 brings a clean writing experience.\"\nUnit 3: \"Three new features: smart linking, AI outline view, and mobile sync.\"\nUnit 4: \"Whether you are a writer or a student, you will feel at home.\"\nUnit 5: \"Available March 15th on web, desktop, and mobile.\"\n\nI've now sent you this revision payload from the widget:\n\nUnit 3 (\"three new features\"): REMOVE\n\nApply the revision and re-render the widget with the change.",
+      "expected_output": "Skill applies removal correctly. Re-rendered widget HTML contains exactly 4 .unit divs, with data-id values 1, 2, 3, 4 (NOT 1, 2, 4, 5). The 'Three new features' content does not appear anywhere in the output. Other 4 units retain their original text byte-identical.",
+      "files": []
+    },
+    {
+      "id": "removal-subtree-on-parent",
+      "prompt": "I'm iterating on a draft. The current widget has a nested structure:\n\nUnit 1: \"Reduce p95 API latency\" (parent bullet)\n  Unit 1.1: \"Profile slow endpoints\"\n  Unit 1.2: \"Migrate sessions to Redis\"\nUnit 2: \"Cut deploy time below 5 minutes\" (parent bullet)\n  Unit 2.1: \"Parallelize test suite\"\n  Unit 2.2: \"Cache pnpm install\"\nUnit 3: \"Improve on-call experience\" (parent bullet)\n  Unit 3.1: \"Audit recent pages\"\n  Unit 3.2: \"Write new runbooks\"\n\nThe widget just sent me this revision payload:\n\nUnit 2 (\"cut deploy time\"): REMOVE\n\nApply the revision and re-render the widget with the change.",
+      "expected_output": "Removed parent and ALL its sub-units (2, 2.1, 2.2) disappear from the output. Remaining top-level parents renumber to 1 and 2 (no gap). Sub-unit IDs renumber under the new parent IDs (1.1, 1.2, 2.1, 2.2). Content of the removed parent and its sub-units appears nowhere in the output.",
+      "files": []
+    },
+    {
+      "id": "mixed-shapes-document",
+      "prompt": "Here's the launch readiness brief I've been working on. Let me iterate on each part.\n\n---\n\n# Acme Notebook 2026 launch readiness\n\nWe're targeting March 15th for the public launch. This brief captures where we are across the workstreams that gate the date.\n\nThe work splits into three areas: product polish, marketing readiness, and ops/SRE. Each is on track but has 2-3 specific items that still need close attention. The biggest risk right now is the mobile sync feature - it's the only workstream where slipping the scope is still on the table.\n\n## Open risks\n\n- Mobile sync reliability under poor network conditions:\n  - The current retry logic stalls if the device loses connection mid-sync rather than backing off cleanly.\n  - Conflict resolution on offline edits hasn't been tested with realistic multi-device timelines.\n  - Battery impact on iOS is 2x what we expected; needs profiling before launch.\n- Pricing page localization:\n  - German and Japanese translations are returned but not reviewed.\n  - The annual-vs-monthly toggle layout breaks below 380px in Safari.\n- Support readiness:\n  - Three of our six support agents haven't completed the product training yet.\n  - The shared inbox is missing rules to route AI-feature questions to the right specialist.\n\n## What's locked\n\nThe core sync, search, and AI outline features are done. Marketing site copy is approved. The press embargo lifts at 9am ET on launch day. The CDN warmup runbook has been rehearsed twice.",
+      "expected_output": "Skill activates. Widget contains <h3> for 'Open risks' and 'What's locked' (headings are section separators, NOT addressable units). 6 top-level units: 2 intro prose paragraphs (plain), 3 bullet parents under Open risks (each with sub-units), 1 closing prose paragraph (plain). 7 sub-units total under the bullet parents (3+2+2). All input prose and sub-bullet text preserved verbatim.",
+      "files": []
+    }
+  ]
+}

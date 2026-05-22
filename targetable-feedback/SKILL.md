@@ -25,6 +25,8 @@ When activating retroactively, the prior assistant content goes into the widget 
 
 Parsing is deterministic. A bullet reading "Goal 1: reduce time" becomes a unit reading "Goal 1: reduce time," not "First goal: time reduction."
 
+**Do not re-segment the input.** Paragraph boundaries (blank lines) and bullet boundaries are inherited directly from the source. A paragraph that contains multiple sentences becomes ONE unit, even if the sentences address distinct topics and could be split for finer-grained addressability. The same applies to bullets - one bullet in, one unit out. Splitting "feels more useful for feedback" is exactly the editorial judgment the verbatim rule prohibits.
+
 ## Parsing into units
 
 Three independent rendering modes. Choose per unit based on what helps the user navigate the content.
