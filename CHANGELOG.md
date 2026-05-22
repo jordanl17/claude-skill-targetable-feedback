@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.1](https://github.com/jordanl17/claude-skill-targetable-feedback/compare/v0.4.0...v0.4.1) (2026-05-22)
+
+
+### Bug Fixes
+
+* forbid paragraph re-segmentation, add eval suite ([d5492a6](https://github.com/jordanl17/claude-skill-targetable-feedback/commit/d5492a6fd7d6c1d27f3357b8d840f0e7214f4325))
+
 ## [0.4.0](https://github.com/jordanl17/claude-skill-targetable-feedback/compare/v0.3.0...v0.4.0) (2026-05-22)
 
 
