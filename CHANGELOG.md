@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0](https://github.com/jordanl17/claude-targettable-feedback/compare/v0.1.0...v0.2.0) (2026-05-22)
+
+
+### Features
+
+* add sub-unit addressability ([7816280](https://github.com/jordanl17/claude-targettable-feedback/commit/7816280ab361338a6adb1d231d45013027554a32))
+
 ## 0.1.0 (2026-05-21)
 
 
