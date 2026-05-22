@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/jordanl17/claude-skill-targetable-feedback/compare/v0.3.0...v0.4.0) (2026-05-22)
+
+
+### Features
+
+* add remove section toggle to widget ([b1d3ca0](https://github.com/jordanl17/claude-skill-targetable-feedback/commit/b1d3ca0955436016bfcc32b00e8117e260214e7a))
+
 ## [0.3.0](https://github.com/jordanl17/claude-skill-targetable-feedback/compare/v0.2.0...v0.3.0) (2026-05-22)
 
 
