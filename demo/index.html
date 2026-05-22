@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>targetable-feedback - demo</title>
+<style>
+  :root {
+    --main-bg: #f8f7f5;
+    --main-bg-elevated: #efeeec;
+    --surface: #ffffff;
+    --text-primary: #1a1816;
+    --text-secondary: #5a5450;
+    --text-tertiary: #8a8278;
+    --text-quaternary: #b3ada3;
+    --border-tertiary: rgba(26, 24, 22, 0.06);
+    --border-secondary: rgba(26, 24, 22, 0.12);
+    --border-strong: rgba(26, 24, 22, 0.18);
+    --info-bg: rgba(70, 100, 180, 0.10);
+    --info-text: #3a5da3;
+    --info-border: rgba(70, 100, 180, 0.25);
+    --success-bg: rgba(90, 130, 60, 0.12);
+    --success-text: #5a7c30;
+    --success-border: rgba(90, 130, 60, 0.30);
+    --send-btn-bg: #c75e3c;
+    --shimmer: rgba(255, 255, 255, 0.55);
+    --font-serif: 'Charter', 'Iowan Old Style', 'Source Serif Pro', 'Georgia', serif;
+    --font-sans: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'Inter', system-ui, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; font-family: var(--font-sans); color: var(--text-primary); background: var(--main-bg); }
+
+  .app { display: flex; height: 100vh; }
+
+  /* Main */
+  .main {
+    flex: 1;
+    background: var(--main-bg);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .title-bar {
+    padding: 12px 24px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 48px;
+    flex-shrink: 0;
+  }
+  .title-bar .title-text { font-weight: 500; color: var(--text-primary); }
+  .title-bar .chevron { width: 12px; height: 12px; color: var(--text-tertiary); }
+  .title-bar .spacer { flex: 1; }
+  .title-bar .actions { display: flex; align-items: center; gap: 4px; }
+  .title-bar .icon-btn { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 6px; color: var(--text-tertiary); }
+  .title-bar .icon-btn svg { width: 16px; height: 16px; }
+  .title-bar .share-btn {
+    font-size: 13px;
+    color: var(--text-secondary);
+    padding: 5px 14px;
+    border: 0.5px solid var(--border-secondary);
+    border-radius: 8px;
+    font-weight: 500;
+  }
+
+  /* Chat scroll */
+  .chat-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 64px 16px;
+    scroll-behavior: smooth;
+  }
+  .chat-scroll::-webkit-scrollbar { width: 8px; }
+  .chat-scroll::-webkit-scrollbar-thumb { background: rgba(31,29,26,0.12); border-radius: 4px; }
+  .chat-scroll::-webkit-scrollbar-track { background: transparent; }
+  .chat-inner { max-width: 740px; margin: 0 auto; }
+
+  /* User message */
+  .user-message {
+    font-family: var(--font-serif);
+    font-size: 17px;
+    line-height: 1.55;
+    color: var(--text-primary);
+    background: var(--main-bg-elevated);
+    border-radius: 14px;
+    padding: 12px 18px;
+    margin: 0 0 28px auto;
+    max-width: 80%;
+    width: fit-content;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+  }
+  .user-message.visible { opacity: 1; transform: translateY(0); }
+
+  /* Thought container - summary header + list */
+  .thought {
+    margin: 0 0 20px;
+    font-family: var(--font-sans);
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+  }
+  .thought.visible { opacity: 1; transform: translateY(0); }
+  .thought-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--text-secondary);
+    padding: 4px 0 12px;
+    font-style: italic;
+  }
+  .thought-header .chevron-down {
+    width: 12px; height: 12px;
+    color: var(--text-tertiary);
+    transform: rotate(180deg);
+    font-style: normal;
+  }
+
+  .thinking-list { padding-left: 4px; }
+  .thinking {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 6px 0;
+    color: var(--text-secondary);
+    font-size: 14px;
+    line-height: 1.5;
+    font-style: italic;
+    opacity: 0;
+    transform: translateY(3px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+  .thinking.visible { opacity: 1; transform: translateY(0); }
+  .thinking .icon {
+    width: 14px;
+    height: 14px;
+    margin-top: 4px;
+    flex-shrink: 0;
+    color: var(--text-tertiary);
+    font-style: normal;
+  }
+  .thinking.done { color: var(--text-secondary); font-style: normal; }
+  .thinking.done .icon { color: var(--text-secondary); }
+
+  .intro-line {
+    margin: 0 0 14px;
+    font-family: var(--font-serif);
+    font-size: 18px;
+    line-height: 1.55;
+    color: var(--text-primary);
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+  }
+  .intro-line.visible { opacity: 1; transform: translateY(0); }
+
+  /* Widget */
+  .doc {
+    padding: 4px 0 8px;
+    font-family: var(--font-sans);
+    color: var(--text-primary);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    position: relative;
+    margin-bottom: 16px;
+  }
+  .doc.visible { opacity: 1; }
+  .doc h1 {
+    font-size: 22px;
+    font-weight: 500;
+    margin: 0 0 0.25rem;
+    font-family: var(--font-sans);
+    color: var(--text-primary);
+  }
+  .doc .rev-pill {
+    display: inline-block;
+    font-size: 12px;
+    padding: 1px 8px;
+    background: var(--info-bg);
+    color: var(--info-text);
+    border-radius: 8px;
+    margin-left: 8px;
+    vertical-align: 2px;
+    font-weight: 500;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .doc .rev-pill.visible { opacity: 1; }
+  .doc .sub {
+    font-size: 14px;
+    color: var(--text-tertiary);
+    margin: 0 0 1.25rem;
+    font-family: var(--font-sans);
+  }
+
+  .unit {
+    position: relative;
+    padding: 7px 12px;
+    margin: 1px 0;
+    border-radius: 8px;
+    cursor: default;
+    font-size: 16px;
+    line-height: 1.5;
+    transition: background 0.2s ease;
+    font-family: var(--font-sans);
+  }
+  .unit.hovered { background: rgba(31,29,26,0.045); }
+  .unit.marked { background: var(--info-bg); }
+  .unit.changed:not(.marked) { background: var(--success-bg); }
+
+  .guidance-wrap {
+    max-height: 0;
+    overflow: hidden;
+    margin-top: 0;
+    transition: max-height 0.35s ease, margin-top 0.35s ease;
+    position: relative;
+  }
+  .unit.open .guidance-wrap, .unit.marked .guidance-wrap {
+    max-height: 80px;
+    margin-top: 10px;
+  }
+  .guidance-input {
+    width: 100%;
+    padding: 8px 28px 8px 10px;
+    border: 0.5px solid var(--border-secondary);
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: var(--font-sans);
+    background: var(--surface);
+    color: var(--text-primary);
+    box-sizing: border-box;
+    resize: none;
+    min-height: 36px;
+    line-height: 1.5;
+    outline: none;
+    white-space: pre-wrap;
+  }
+  .guidance-input.focused {
+    border-color: var(--info-border);
+    box-shadow: 0 0 0 1px var(--info-border);
+  }
+  @keyframes blink {
+    0%, 50% { opacity: 1; }
+    50.01%, 100% { opacity: 0; }
+  }
+  .changed-tag {
+    display: inline-block;
+    font-size: 11px;
+    padding: 1px 7px;
+    background: var(--success-bg);
+    color: var(--success-text);
+    border-radius: 4px;
+    margin-left: 8px;
+    vertical-align: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-weight: 500;
+  }
+
+  .bar {
+    margin-top: 1.25rem;
+    padding: 12px 0;
+    border-top: 0.5px solid var(--border-tertiary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .count { font-size: 13px; color: var(--text-tertiary); font-family: var(--font-sans); transition: color 0.2s; }
+  .applyBtn {
+    font-size: 13px;
+    padding: 6px 14px;
+    background: transparent;
+    color: var(--text-tertiary);
+    border: 0.5px solid var(--border-secondary);
+    border-radius: 8px;
+    cursor: default;
+    font-weight: 500;
+    font-family: var(--font-sans);
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+  }
+  .applyBtn.active {
+    color: var(--info-text);
+    border-color: var(--info-border);
+    background: var(--info-bg);
+  }
+  .applyBtn.clicked { transform: scale(0.96); }
+
+  .shimmer-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(90deg, transparent, var(--shimmer), transparent);
+    background-size: 200% 100%;
+    opacity: 0;
+    border-radius: 12px;
+    transition: opacity 0.2s ease;
+  }
+  .shimmer-overlay.active {
+    opacity: 1;
+    animation: shimmer-sweep 0.8s ease;
+  }
+  @keyframes shimmer-sweep {
+    from { background-position: -100% 0; }
+    to { background-position: 100% 0; }
+  }
+
+  /* Input bar */
+  .input-bar {
+    padding: 0 64px 4px;
+    background: var(--main-bg);
+    flex-shrink: 0;
+  }
+  .input-bar-inner {
+    max-width: 740px;
+    margin: 0 auto;
+    background: var(--surface);
+    border-radius: 20px;
+    padding: 14px 18px 10px;
+    box-shadow: 0 1px 3px rgba(31,29,26,0.06), 0 1px 2px rgba(31,29,26,0.04);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 88px;
+  }
+  .input-text {
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.5;
+    min-height: 24px;
+    padding: 2px 0;
+  }
+  .input-text.empty::before {
+    content: 'Write a message...';
+    color: var(--text-quaternary);
+  }
+  .input-text .caret {
+    display: inline-block;
+    width: 1px;
+    height: 18px;
+    background: var(--text-primary);
+    margin-left: 1px;
+    vertical-align: -4px;
+    animation: blink 1s steps(2) infinite;
+  }
+  .input-text.empty .caret { display: none; }
+
+  .input-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+  }
+  .input-actions .left, .input-actions .right { display: flex; align-items: center; gap: 4px; }
+  .input-actions .icon-btn {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    color: var(--text-tertiary);
+  }
+  .input-actions .icon-btn svg { width: 16px; height: 16px; }
+  .input-actions .model-info {
+    display: flex;
+    align-items: center;
+    font-size: 13px;
+    color: var(--text-secondary);
+    padding: 4px 8px;
+    gap: 8px;
+  }
+  .input-actions .model-info .divider {
+    width: 1px;
+    height: 12px;
+    background: var(--border-secondary);
+  }
+  .input-actions .model-info .label { color: var(--text-secondary); }
+  .input-actions .send-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: var(--send-btn-bg);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 4px;
+    transition: background 0.2s, transform 0.15s ease;
+  }
+  .input-actions .send-btn.clicked { transform: scale(0.9); }
+  .input-actions .send-btn svg { width: 14px; height: 14px; }
+
+  .footer-disclaimer {
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-tertiary);
+    padding: 6px 0 10px;
+    background: var(--main-bg);
+  }
+
+  /* Cursor */
+  .cursor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 22px;
+    height: 22px;
+    pointer-events: none;
+    z-index: 1000;
+    transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.18));
+  }
+  .cursor svg { display: block; }
+  .cursor.hidden { opacity: 0; }
+  .cursor.clicking::after {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 4px;
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--info-text);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    animation: pulse-ring 0.5s ease-out;
+  }
+  @keyframes pulse-ring {
+    0% { transform: translate(-50%, -50%) scale(0.4); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <main class="main">
+    <div class="title-bar">
+      <span class="title-text">Launching Acme Notebook 2026</span>
+      <svg class="chevron" viewBox="0 0 12 12" fill="none"><path d="M3 4.5l3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+
+    <div class="chat-scroll" id="chatScroll">
+      <div class="chat-inner" id="chat"></div>
+    </div>
+
+    <div class="input-bar">
+      <div class="input-bar-inner">
+        <div class="input-text empty" id="inputText"><span class="text"></span><span class="caret"></span></div>
+        <div class="input-actions">
+          <div class="left">
+            <div class="icon-btn">
+              <svg viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            </div>
+          </div>
+          <div class="right">
+            <div class="model-info">
+              <span class="label">Opus 4.7</span>
+              <span class="divider"></span>
+              <span class="label">Adaptive</span>
+              <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M3 4.5l3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="icon-btn">
+              <svg viewBox="0 0 16 16" fill="none"><rect x="6" y="2.5" width="4" height="8" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M3.5 8a4.5 4.5 0 0 0 9 0M8 12.5V14" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+            </div>
+            <div class="send-btn" id="sendBtn">
+              <svg viewBox="0 0 16 16" fill="none"><path d="M8 13V3M4 7l4-4 4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-disclaimer">Claude is AI and can make mistakes. Please double-check responses.</div>
+  </main>
+</div>
+
+<div class="cursor hidden" id="cursor">
+  <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M3 2L3 17L7.5 13L9.5 18L11.5 17.2L9.5 12.5L15 12.5L3 2Z" fill="#1f1d1a" stroke="white" stroke-width="1"/>
+  </svg>
+</div>
+
+<script>
+  const chat = document.getElementById('chat');
+  const chatScroll = document.getElementById('chatScroll');
+  const inputText = document.getElementById('inputText');
+  const inputTextSpan = inputText.querySelector('.text');
+  const cursor = document.getElementById('cursor');
+  const sendBtn = document.getElementById('sendBtn');
+
+  const PROMPT = 'Draft a product launch announcement for Acme Notebook 2026 and let me iterate on each section.';
+
+  const THOUGHT_SUMMARY = 'Drafted product launch announcement and prepared interactive widget';
+
+  const THINKING_STATES = [
+    { text: 'The user is asking for a product launch announcement, and they want to refine it iteratively. That means I should use the targetable-feedback skill to let them comment on each section individually.', icon: 'doc' },
+    { text: 'Reading the targetable-feedback skill since the user wants to iterate on a draft', icon: 'doc' },
+    { text: 'Reading the widget template for targetable feedback', icon: 'doc' },
+    { text: 'Drafting five sections covering positioning, audience, features, voice, and availability. Keeping each one tight and standalone so the user can mark them up independently.', icon: 'doc' },
+    { text: 'Building the widget layout... Building the widget HTML now...', icon: 'doc' },
+    { text: 'Done', icon: 'check', done: true },
+  ];
+
+  const ICON_DOC = `<svg class="icon" viewBox="0 0 16 16" fill="none"><path d="M3 2h7l3 3v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="1.2"/><path d="M10 2v3h3" stroke="currentColor" stroke-width="1.2"/></svg>`;
+  const ICON_CHECK = `<svg class="icon" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3 3 7-7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+  const ORIGINAL_UNITS = [
+    { id: 1, text: 'Acme Notebook 2026 is our most ambitious release yet. We are redefining what a notebook can be for everyday work.' },
+    { id: 2, text: 'Built for the modern knowledge worker, Acme Notebook 2026 brings a clean, focused writing experience that adapts to how you actually think.' },
+    { id: 3, text: 'Three new features: smart linking between notes, an AI-powered outline view, and seamless mobile sync that just works.' },
+    { id: 4, text: 'Whether you are a writer, a researcher, or a student, you will feel at home from the first page. Acme Notebook 2026 is designed for everyone who thinks in writing.' },
+    { id: 5, text: 'Available March 15th on web, desktop, and mobile. Sign up at acme.com to be the first to know.' },
+  ];
+
+  const GUIDANCE_1 = { unitIndex: 1, text: 'lean into productivity angle' };
+  const GUIDANCE_2 = { unitIndex: 3, text: 'tighten this to one sentence' };
+
+  const REVISED_UNITS = {
+    2: 'Built for productivity-first knowledge workers, Acme Notebook 2026 cuts the noise so you can focus on what matters: getting work done.',
+    4: 'You will feel at home from the first page.',
+  };
+
+  const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+  function getCenter(el) {
+    const r = el.getBoundingClientRect();
+    return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+  }
+
+  function scrollToBottom(smooth = true) {
+    chatScroll.scrollTo({
+      top: chatScroll.scrollHeight,
+      behavior: smooth ? 'smooth' : 'auto'
+    });
+  }
+
+  function moveCursorTo(target, offsetX = 0, offsetY = 0) {
+    const c = getCenter(target);
+    cursor.style.transform = `translate(${c.x + offsetX - 4}px, ${c.y + offsetY - 4}px)`;
+  }
+
+  async function clickCursor() {
+    cursor.classList.add('clicking');
+    await sleep(500);
+    cursor.classList.remove('clicking');
+  }
+
+  async function typeIntoInput(text, speed = 28) {
+    inputText.classList.remove('empty');
+    inputTextSpan.textContent = '';
+    for (let i = 0; i < text.length; i++) {
+      inputTextSpan.textContent += text[i];
+      await sleep(speed);
+    }
+  }
+
+  async function typeInto(el, text, speed = 38) {
+    el.textContent = '';
+    for (let i = 0; i < text.length; i++) {
+      el.textContent += text[i];
+      await sleep(speed);
+    }
+  }
+
+  function clearChat() {
+    chat.innerHTML = '';
+    chatScroll.scrollTop = 0;
+  }
+
+  function renderUserMessage(text) {
+    const div = document.createElement('div');
+    div.className = 'user-message';
+    div.textContent = text;
+    chat.appendChild(div);
+    requestAnimationFrame(() => {
+      div.classList.add('visible');
+      scrollToBottom();
+    });
+    return div;
+  }
+
+  function renderThoughtContainer() {
+    const wrap = document.createElement('div');
+    wrap.className = 'thought';
+    wrap.innerHTML = `
+      <div class="thought-header">
+        <svg class="chevron-down" viewBox="0 0 12 12" fill="none"><path d="M3 4.5l3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>${THOUGHT_SUMMARY}</span>
+      </div>
+      <div class="thinking-list"></div>
+    `;
+    chat.appendChild(wrap);
+    requestAnimationFrame(() => {
+      wrap.classList.add('visible');
+      scrollToBottom();
+    });
+    return wrap.querySelector('.thinking-list');
+  }
+
+  function renderThinkingState(state) {
+    const div = document.createElement('div');
+    div.className = 'thinking' + (state.done ? ' done' : '');
+    div.innerHTML = `${state.icon === 'check' ? ICON_CHECK : ICON_DOC}<span>${state.text}</span>`;
+    return div;
+  }
+
+  function renderIntroLine(text) {
+    const div = document.createElement('div');
+    div.className = 'intro-line';
+    div.textContent = text;
+    chat.appendChild(div);
+    requestAnimationFrame(() => {
+      div.classList.add('visible');
+      scrollToBottom();
+    });
+    return div;
+  }
+
+  function renderWidget(units, revision = 0, changedIds = []) {
+    const doc = document.createElement('div');
+    doc.className = 'doc';
+
+    const h1 = document.createElement('h1');
+    h1.textContent = 'Acme Notebook 2026 launch';
+    if (revision > 0) {
+      const pill = document.createElement('span');
+      pill.className = 'rev-pill';
+      pill.textContent = `rev ${revision}`;
+      h1.appendChild(pill);
+      requestAnimationFrame(() => pill.classList.add('visible'));
+    }
+    doc.appendChild(h1);
+
+    const sub = document.createElement('p');
+    sub.className = 'sub';
+    sub.textContent = 'Five paragraphs. Tap any one to add guidance.';
+    doc.appendChild(sub);
+
+    units.forEach((unit) => {
+      const u = document.createElement('div');
+      u.className = 'unit';
+      u.dataset.id = unit.id;
+      if (changedIds.includes(unit.id)) {
+        u.classList.add('changed');
+        const textNode = document.createTextNode(unit.text + ' ');
+        u.appendChild(textNode);
+        const tagSpan = document.createElement('span');
+        tagSpan.className = 'changed-tag';
+        tagSpan.textContent = 'changed';
+        u.appendChild(tagSpan);
+      } else {
+        u.textContent = unit.text;
+      }
+
+      const wrap = document.createElement('div');
+      wrap.className = 'guidance-wrap';
+      const ta = document.createElement('div');
+      ta.className = 'guidance-input';
+      wrap.appendChild(ta);
+      u.appendChild(wrap);
+
+      doc.appendChild(u);
+    });
+
+    const bar = document.createElement('div');
+    bar.className = 'bar';
+    bar.innerHTML = `<span class="count">No guidance added</span><button class="applyBtn">Apply edits</button>`;
+    doc.appendChild(bar);
+
+    const shimmer = document.createElement('div');
+    shimmer.className = 'shimmer-overlay';
+    doc.appendChild(shimmer);
+
+    chat.appendChild(doc);
+    requestAnimationFrame(() => {
+      doc.classList.add('visible');
+      scrollToBottom();
+    });
+    return doc;
+  }
+
+  async function runSequence() {
+    clearChat();
+    inputText.classList.add('empty');
+    inputTextSpan.textContent = '';
+    cursor.classList.add('hidden');
+
+    await sleep(900);
+
+    await typeIntoInput(PROMPT);
+    await sleep(500);
+
+    sendBtn.classList.add('clicked');
+    await sleep(140);
+    sendBtn.classList.remove('clicked');
+    inputText.classList.add('empty');
+    inputTextSpan.textContent = '';
+    renderUserMessage(PROMPT);
+    await sleep(800);
+
+    const list = renderThoughtContainer();
+    for (const state of THINKING_STATES) {
+      const el = renderThinkingState(state);
+      list.appendChild(el);
+      requestAnimationFrame(() => {
+        el.classList.add('visible');
+        scrollToBottom();
+      });
+      await sleep(state.done ? 700 : 950);
+    }
+    await sleep(500);
+
+    renderIntroLine('Here’s a draft. Tap any section to add guidance, then hit apply.');
+    await sleep(500);
+
+    const doc = renderWidget(ORIGINAL_UNITS);
+    await sleep(900);
+    scrollToBottom();
+    await sleep(200);
+
+    cursor.style.transform = 'translate(' + (window.innerWidth - 100) + 'px, ' + (window.innerHeight - 50) + 'px)';
+    cursor.classList.remove('hidden');
+    await sleep(400);
+
+    const units = doc.querySelectorAll('.unit');
+    const unit2 = units[GUIDANCE_1.unitIndex];
+    moveCursorTo(unit2, -40, 0);
+    await sleep(700);
+    unit2.classList.add('hovered');
+    await sleep(400);
+    moveCursorTo(unit2, 0, -8);
+    await sleep(400);
+    await clickCursor();
+    unit2.classList.remove('hovered');
+    unit2.classList.add('open');
+    const ta1 = unit2.querySelector('.guidance-input');
+    ta1.classList.add('focused');
+    scrollToBottom();
+    await sleep(500);
+
+    await typeInto(ta1, GUIDANCE_1.text);
+    unit2.classList.add('marked');
+    doc.querySelector('.count').textContent = '1 unit marked';
+    doc.querySelector('.applyBtn').classList.add('active');
+    await sleep(700);
+
+    const unit4 = units[GUIDANCE_2.unitIndex];
+    moveCursorTo(unit4, 0, -8);
+    await sleep(700);
+    unit4.classList.add('hovered');
+    await sleep(300);
+    await clickCursor();
+    unit4.classList.remove('hovered');
+    unit4.classList.add('open');
+    const ta2 = unit4.querySelector('.guidance-input');
+    ta2.classList.add('focused');
+    scrollToBottom();
+    await sleep(400);
+
+    await typeInto(ta2, GUIDANCE_2.text);
+    unit4.classList.add('marked');
+    doc.querySelector('.count').textContent = '2 units marked';
+    await sleep(700);
+
+    const applyBtn = doc.querySelector('.applyBtn');
+    moveCursorTo(applyBtn, 0, -4);
+    await sleep(600);
+    await clickCursor();
+    applyBtn.classList.add('clicked');
+    await sleep(200);
+    applyBtn.classList.remove('clicked');
+
+    const shimmer = doc.querySelector('.shimmer-overlay');
+    shimmer.classList.add('active');
+    await sleep(800);
+    shimmer.classList.remove('active');
+
+    doc.remove();
+    cursor.classList.add('hidden');
+    const revisedUnits = ORIGINAL_UNITS.map(u => ({
+      ...u,
+      text: REVISED_UNITS[u.id] || u.text,
+    }));
+    renderWidget(revisedUnits, 1, [2, 4]);
+    scrollToBottom();
+    await sleep(5500);
+
+    runSequence();
+  }
+
+  setTimeout(runSequence, 300);
+</script>
+
+</body>
+</html>
