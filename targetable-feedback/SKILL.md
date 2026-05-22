@@ -78,8 +78,6 @@ Set `data-snippet` to a short identifier (3-6 words) of the unit's content. Sub-
 
 Do not repeat the draft content in prose around the widget. The widget is the surface for the content. Writing it twice is the primary anti-pattern.
 
-**End the assistant message with the `show_widget` call. Write nothing after it.** Trailing prose - summaries, explanations of how units work, follow-up questions, "let me know what you think" - keeps the response in a streaming state. claude.ai overlays a pulsing skeleton on the widget while the message is still streaming, so users see the widget but cannot interact with it until streaming completes. The `show_widget` call IS the end of the message.
-
 ## The revision loop
 
 When the widget calls `sendPrompt` with per-unit guidance:
