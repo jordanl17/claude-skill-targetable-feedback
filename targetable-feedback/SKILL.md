@@ -90,6 +90,8 @@ When the widget calls `sendPrompt` with per-unit guidance:
 
 **Hierarchical IDs in payloads.** Payloads may include lines like `Unit 9.2 ("snippet"): guidance text`. Treat sub-unit IDs identically to top-level IDs - find the matching `data-id` and apply the guidance to that unit's content only.
 
+**Removal markers.** A line like `Unit 7 ("snippet"): REMOVE` means the user has flagged that unit for deletion. Drop it entirely from the next draft - do not retain its content anywhere. Renumber the remaining top-level units sequentially (1, 2, 3, ...) with no gaps. For a removed sub-unit, renumber its siblings within the same parent (parentId.1, parentId.2, ...). Removed units do not get a changed tag because there is nothing left to attach it to; they simply do not appear. If the user removed a parent that had sub-units, the entire subtree is gone.
+
 **Parent / sub-unit independence (CRITICAL).** Guidance on a parent affects only the parent's text. Sub-bullets stay byte-identical unless individually marked, and vice versa. There is no implicit "applies to children" behavior. The changed tag goes on whatever level actually changed: if only 9.2 changed, only 9.2 gets the tag; if parent 9 changed but its sub-bullets didn't, only 9 gets the tag.
 
 **Mismatch handling.** If guidance fundamentally reframes a unit's purpose (not just rewords it), attempt the fit and flag it in the brief assistant message above the re-rendered widget. The flag should name the specific unit, what shifted, and why, so the user can push back. A vague meta-note is worse than no flag.
