@@ -1,21 +1,3 @@
-<!--
-  Widget template for targetable draft feedback skill.
-
-  Starting point from the v2 + revision 1 prototype built in chat.
-
-  What gets parameterized when Claude uses this:
-  - The h1 title (the document title)
-  - The optional rev-pill ("rev 1", "rev 2", etc - only shown on revisions)
-  - The sub-line text
-  - Each <div class="unit"> block with its content, data-id, and data-snippet
-  - Section headers (<h3>) between unit groups
-  - The "changed" CSS class + tag on units that were modified in the current revision
-
-  Reusable across all draft types: just substitute the unit content.
-
-  Pass to visualize:show_widget as widget_code.
--->
-
 <style>
 .doc { padding: 1rem 0; font-family: var(--font-sans); color: var(--color-text-primary); }
 .doc h1 { font-size: 22px; font-weight: 500; margin: 0 0 0.25rem; }
@@ -33,10 +15,10 @@
   border-left: 2px solid transparent;
   transition: background 0.12s;
 }
-.unit:hover { background: var(--color-background-secondary); }
+.unit:hover:not(:has(.unit:hover)) { background: var(--color-background-secondary); }
 .unit.open { background: var(--color-background-secondary); }
 .unit.marked { background: var(--color-background-info); border-left-color: var(--color-border-info); }
-.unit.marked:hover { background: var(--color-background-info); }
+.unit.marked:hover:not(:has(.unit:hover)) { background: var(--color-background-info); }
 .unit.changed { border-left-color: var(--color-border-success); }
 .unit .num {
   position: absolute;
@@ -54,13 +36,28 @@
   color: var(--color-text-tertiary);
 }
 .unit.marked.bullet::before { color: var(--color-text-info); }
+
+.unit.sub-unit {
+  font-size: 13px;
+  padding: 5px 10px 5px 32px;
+  margin: 2px 0;
+}
+.unit.sub-unit .num { left: 4px; top: 6px; }
+.unit.sub-unit::before {
+  content: "\25E6";
+  margin-right: 6px;
+  color: var(--color-text-tertiary);
+}
+.unit.sub-unit.marked::before { color: var(--color-text-info); }
+.unit.sub-unit.open:not(.marked) { border-left-color: var(--color-border-secondary); }
+
 .changed-tag { display: inline-block; font-size: 10px; padding: 1px 6px; background: var(--color-background-success); color: var(--color-text-success); border-radius: 4px; margin-left: 6px; vertical-align: 2px; text-transform: uppercase; letter-spacing: 0.04em; font-weight: 500; }
 .guidance-wrap {
   display: none;
   margin-top: 10px;
   position: relative;
 }
-.unit.open .guidance-wrap, .unit.marked .guidance-wrap { display: block; }
+.unit.open > .guidance-wrap, .unit.marked > .guidance-wrap { display: block; }
 .guidance-input {
   width: 100%;
   padding: 8px 28px 8px 10px;
@@ -112,15 +109,8 @@
 </h2>
 
 <div class="doc">
-  <h1>{{DOCUMENT_TITLE}}<!-- optional: <span class="rev-pill">rev N</span> --></h1>
+  <h1>{{DOCUMENT_TITLE}}</h1>
   <p class="sub">{{SUB_LINE}}</p>
-
-  <!--
-    UNIT BLOCK PATTERN
-    Repeat per addressable unit. data-id should be stable and sequential.
-    data-snippet is a short identifier of the unit content used in sendPrompt payload.
-    Add class "bullet" to bullet units. Add class "changed" + <span class="changed-tag">changed</span> to units modified in the current revision.
-  -->
 
   <div class="unit" data-id="N" data-snippet="{{SHORT_IDENTIFIER}}">
     <span class="num">N</span>{{UNIT_CONTENT}}
@@ -130,15 +120,8 @@
     </div>
   </div>
 
-  <!--
-    SECTION HEADER PATTERN
-    Use between groups of units to denote logical sections.
-  -->
   <h3>{{SECTION_NAME}}</h3>
 
-  <!--
-    BULLET UNIT EXAMPLE
-  -->
   <div class="unit bullet" data-id="N" data-snippet="{{SHORT_IDENTIFIER}}">
     <span class="num">N</span>{{UNIT_CONTENT}}
     <div class="guidance-wrap">
@@ -147,11 +130,44 @@
     </div>
   </div>
 
-  <!--
-    CHANGED UNIT EXAMPLE (rendered on revisions)
-  -->
-  <div class="unit bullet changed" data-id="N" data-snippet="{{SHORT_IDENTIFIER}}">
-    <span class="num">N</span>{{REVISED_UNIT_CONTENT}} <span class="changed-tag">changed</span>
+  <div class="unit bullet" data-id="N" data-snippet="{{PARENT_IDENTIFIER}}">
+    <span class="num">N</span>{{PARENT_CONTENT}}
+    <div class="unit sub-unit" data-id="N.1" data-snippet="{{SUB_IDENTIFIER_1}}">
+      <span class="num">N.1</span>{{SUB_CONTENT_1}}
+      <div class="guidance-wrap">
+        <textarea class="guidance-input" placeholder="How should this change?"></textarea>
+        <button class="clear-x" aria-label="Clear guidance"><i class="ti ti-x" style="font-size:14px;" aria-hidden="true"></i></button>
+      </div>
+    </div>
+    <div class="unit sub-unit" data-id="N.2" data-snippet="{{SUB_IDENTIFIER_2}}">
+      <span class="num">N.2</span>{{SUB_CONTENT_2}}
+      <div class="guidance-wrap">
+        <textarea class="guidance-input" placeholder="How should this change?"></textarea>
+        <button class="clear-x" aria-label="Clear guidance"><i class="ti ti-x" style="font-size:14px;" aria-hidden="true"></i></button>
+      </div>
+    </div>
+    <div class="guidance-wrap">
+      <textarea class="guidance-input" placeholder="How should this change?"></textarea>
+      <button class="clear-x" aria-label="Clear guidance"><i class="ti ti-x" style="font-size:14px;" aria-hidden="true"></i></button>
+    </div>
+  </div>
+
+  <div class="unit bullet" data-id="N" data-snippet="{{PARENT_IDENTIFIER}}">
+    <span class="num">N</span>{{PARENT_CONTENT}}
+    <div class="unit sub-unit" data-id="N.1" data-snippet="{{SUB_IDENTIFIER_1}}">
+      <span class="num">N.1</span>{{SUB_CONTENT_1}}
+      <div class="guidance-wrap">
+        <textarea class="guidance-input" placeholder="How should this change?"></textarea>
+        <button class="clear-x" aria-label="Clear guidance"><i class="ti ti-x" style="font-size:14px;" aria-hidden="true"></i></button>
+      </div>
+    </div>
+    <div class="unit sub-unit changed" data-id="N.2" data-snippet="{{SUB_IDENTIFIER_2}}">
+      <span class="num">N.2</span>{{REVISED_SUB_CONTENT_2}} <span class="changed-tag">changed</span>
+      <div class="guidance-wrap">
+        <textarea class="guidance-input" placeholder="How should this change?"></textarea>
+        <button class="clear-x" aria-label="Clear guidance"><i class="ti ti-x" style="font-size:14px;" aria-hidden="true"></i></button>
+      </div>
+    </div>
     <div class="guidance-wrap">
       <textarea class="guidance-input" placeholder="How should this change?"></textarea>
       <button class="clear-x" aria-label="Clear guidance"><i class="ti ti-x" style="font-size:14px;" aria-hidden="true"></i></button>
@@ -170,15 +186,19 @@
 <script>
 const guidance = new Map();
 function autosize(el) { el.style.height = 'auto'; el.style.height = Math.max(36, el.scrollHeight) + 'px'; }
+function ownInput(unit) {
+  return Array.from(unit.querySelectorAll('.guidance-input')).find(input => input.closest('.unit') === unit);
+}
 
 document.querySelectorAll('.unit').forEach(unit => {
   unit.addEventListener('click', (e) => {
+    if (e.target.closest('.unit') !== unit) return;
     if (e.target.tagName === 'TEXTAREA' || e.target.closest('.clear-x')) return;
     document.querySelectorAll('.unit.open').forEach(u => {
       if (u !== unit && !u.classList.contains('marked')) u.classList.remove('open');
     });
     unit.classList.add('open');
-    const input = unit.querySelector('.guidance-input');
+    const input = ownInput(unit);
     setTimeout(() => { input.focus(); autosize(input); }, 30);
   });
 });
@@ -189,8 +209,8 @@ document.querySelectorAll('.guidance-input').forEach(input => {
     autosize(input);
     const unit = input.closest('.unit');
     const id = unit.dataset.id;
-    const v = input.value.trim();
-    if (v) { guidance.set(id, input.value); unit.classList.add('marked'); }
+    const trimmed = input.value.trim();
+    if (trimmed) { guidance.set(id, input.value); unit.classList.add('marked'); }
     else { guidance.delete(id); unit.classList.remove('marked'); }
     updateBar();
   });
@@ -205,7 +225,7 @@ document.querySelectorAll('.clear-x').forEach(btn => {
   btn.addEventListener('click', (e) => {
     e.stopPropagation();
     const unit = btn.closest('.unit');
-    const input = unit.querySelector('.guidance-input');
+    const input = ownInput(unit);
     input.value = '';
     autosize(input);
     guidance.delete(unit.dataset.id);
@@ -215,17 +235,17 @@ document.querySelectorAll('.clear-x').forEach(btn => {
 });
 
 function updateBar() {
-  const n = guidance.size;
-  document.querySelector('.count').textContent = n === 0 ? 'No guidance added' : `${n} unit${n === 1 ? '' : 's'} marked`;
-  document.getElementById('applyBtn').disabled = n === 0;
-  document.getElementById('clearAll').disabled = n === 0;
+  const count = guidance.size;
+  document.querySelector('.count').textContent = count === 0 ? 'No guidance added' : `${count} unit${count === 1 ? '' : 's'} marked`;
+  document.getElementById('applyBtn').disabled = count === 0;
+  document.getElementById('clearAll').disabled = count === 0;
 }
 
 document.getElementById('clearAll').addEventListener('click', () => {
   guidance.clear();
-  document.querySelectorAll('.unit').forEach(u => {
-    u.classList.remove('marked', 'open');
-    const input = u.querySelector('.guidance-input');
+  document.querySelectorAll('.unit').forEach(unit => {
+    unit.classList.remove('marked', 'open');
+    const input = ownInput(unit);
     input.value = '';
     autosize(input);
   });

@@ -79,6 +79,40 @@ Fill this in after running the cases.
 | 3.3  | skip     |        |       |
 | 3.4  | skip     |        |       |
 
+## Doc consistency: sub-unit rules (v1.1)
+
+CC cannot render the widget, but it can verify that `SKILL.md` and `resources/widget.html` describe sub-bullet behavior consistently. Each check is a grep-style read against both files. The skill ships broken if these drift.
+
+### Check D.1 - data-id notation
+
+- **SKILL.md** must state: top-level units use sequential integer `data-id`; sub-units use `"{parentId}.{N}"` notation; the convention generalizes but v1.1 caps parsing at 2 levels.
+- **widget.html** must show: a nested-unit example with `data-id="N.1"` and `data-id="N.2"` inside a parent with `data-id="N"`.
+- **Fail mode**: notation drifts (e.g., SKILL.md says `"9-1"` but widget shows `"9.1"`) or the 2-level cap is missing from SKILL.md.
+
+### Check D.2 - parent / sub-unit independence
+
+- **SKILL.md** revision-loop section must state: guidance on a parent affects only the parent's text; sub-bullets stay byte-identical unless individually marked; vice versa; no implicit "applies to children" behavior.
+- **widget.html** must implement: the click-handling guard `closest('.unit') === unit` (so a sub-unit click does not also open the parent), AND the `> .guidance-wrap` direct-child CSS (so a parent's open state does not reveal sub-unit textareas).
+- **Fail mode**: SKILL.md describes independence but the widget's click handler bubbles to parents (no guard), or vice versa.
+
+### Check D.3 - changed tag scope
+
+- **SKILL.md** must state: the changed tag applies at whatever level actually changed; if only 9.2 changed, only 9.2 gets the tag.
+- **widget.html** must include: a nested changed-unit example showing `changed` class + `changed-tag` on a sub-unit while its parent remains unchanged.
+
+### Check D.4 - sub-unit only nests under bullet parents
+
+- **SKILL.md** parsing rules must specify: only direct sub-bullets of a bullet unit become sub-units. Sub-sub-bullets flatten into the containing sub-unit's text.
+- **widget.html**: the nested example uses `class="unit bullet"` as parent (containing sub-units), not a non-bullet paragraph parent.
+
+### Check D.5 - depth-agnostic widget logic
+
+- **widget.html** click handler must use `closest('.unit') === unit` as the guard (not `stopPropagation` on every click target). No hardcoded depth check anywhere in the JS or CSS selectors.
+- **SKILL.md** must not reference any specific level count in widget code (only in parsing rules).
+- **Fail mode**: SKILL.md instructs the widget to "stop at 2 levels" - that's the parsing layer's job, not the widget's.
+
+---
+
 ## Iteration triggers
 
 If a case fails, the likely fixes are:

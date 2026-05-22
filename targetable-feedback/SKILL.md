@@ -27,15 +27,18 @@ Parsing is deterministic. A bullet reading "Goal 1: reduce time" becomes a unit 
 
 ## Parsing into units
 
-- Paragraphs become units.
-- Top-level bullets become units (add the `bullet` class).
-- Sub-bullets flatten into their parent unit's text. Users can address them in guidance.
+- Paragraphs become top-level units.
+- Top-level bullets become top-level units (add the `bullet` class).
+- Direct sub-bullets of a bullet unit become sub-units nested inside the parent's content (add the `sub-unit` class).
+- Sub-sub-bullets and deeper flatten into their containing sub-unit's text. Users can address them in guidance.
 - Headings become section separators (`<h3>`), not addressable units.
 - Inline code stays inline within its containing unit.
 - Fenced code blocks become their own unit only if surrounded by prose. If the content is mostly code, do not activate.
 - Tables behave like code blocks: tolerated if incidental, disqualifying if dominant.
 
-Assign `data-id` sequentially starting at 1. Set `data-snippet` to a short identifier (3-6 words) of the unit's content, used in the revision payload.
+**Data-id convention.** Top-level units get sequential integer IDs (`"1"`, `"2"`, `"3"`, ...). Sub-units get `"{parentId}.{N}"` where `N` is the 1-based index of the sub-bullet under its parent (`"9.1"`, `"9.2"`, ...). The dot-notation generalizes conceptually to deeper levels (`"9.2.1"`), but v1.1 caps parsing at 2 levels - anything deeper flattens into the containing sub-unit's text.
+
+Set `data-snippet` to a short identifier (3-6 words) of the unit's content. Sub-units get their own snippet describing the sub-bullet, not the parent's snippet.
 
 ## Rendering
 
@@ -56,9 +59,13 @@ When the widget calls `sendPrompt` with per-unit guidance:
 
 1. Apply only the marked changes. Unmarked units come back byte-identical.
 2. Re-render the widget with the new content.
-3. On each changed unit, add the `changed` class and a `<span class="changed-tag">changed</span>` after the unit content.
+3. On each changed unit or sub-unit, add the `changed` class and a `<span class="changed-tag">changed</span>` after the content.
 4. Show the rev pill in the `<h1>`: `<span class="rev-pill">rev N</span>`, incremented per revision.
-5. Preserve `data-id` numbering across revisions so the user can keep iterating.
+5. Preserve `data-id` numbering across revisions, including sub-unit IDs, so the user can keep iterating.
+
+**Hierarchical IDs in payloads.** Payloads may include lines like `Unit 9.2 ("snippet"): guidance text`. Treat sub-unit IDs identically to top-level IDs - find the matching `data-id` and apply the guidance to that unit's content only.
+
+**Parent / sub-unit independence (CRITICAL).** Guidance on a parent affects only the parent's text. Sub-bullets stay byte-identical unless individually marked, and vice versa. There is no implicit "applies to children" behavior. The changed tag goes on whatever level actually changed: if only 9.2 changed, only 9.2 gets the tag; if parent 9 changed but its sub-bullets didn't, only 9 gets the tag.
 
 **Mismatch handling.** If guidance fundamentally reframes a unit's purpose (not just rewords it), attempt the fit and flag it in the brief assistant message above the re-rendered widget. The flag should name the specific unit, what shifted, and why, so the user can push back. A vague meta-note is worse than no flag.
 
