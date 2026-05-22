@@ -11,21 +11,19 @@ A Claude skill for providing per-section feedback on multi-section drafts withou
 > [!NOTE]
 > The skill works best in **[claude.ai](https://claude.ai) on the web**. The Claude desktop app currently has rendering quirks where the widget can stay in a loading state after generation - usually fixed by refreshing the window. The web app is the recommended environment until those issues are resolved.
 
-## Why this exists
-
-<p align="center">
-  <img src="demo/comparison.png" alt="Side-by-side comparison. Left: a user typing a long, ambiguous prose message describing which paragraphs to change and how. Right: the widget with feedback attached directly to specific sections via inline textareas and a remove checkbox." width="900">
-</p>
-
-Today, feedback on a multi-section AI draft means describing locations in prose - "in the second paragraph...", "the third bullet under next steps...", "or maybe the second, I can't remember." It's ambiguous, exhausting, and the model still has to map the description onto its own structure.
-
-This skill exploits the fact that Claude already knows the structure of its output. It renders the draft as a widget where each unit is directly addressable, attaches your guidance to the specific unit, and applies everything in a single revision pass.
-
 ## In action
 
 <p align="center">
   <img src="demo/targetable-feedback.gif" alt="Demo: typing a prompt, Claude renders an interactive widget, user adds per-section guidance, widget re-renders with changed sections marked." width="800">
 </p>
+
+## Why this exists
+
+<p align="center">
+  <img src="demo/comparison.png" alt="Side-by-side comparison. Left: a user describing in prose which paragraphs to change. Right: the widget with feedback attached directly to specific sections via inline textareas and a remove checkbox." width="900">
+</p>
+
+Per-section feedback has shape, but chat collapses it into prose. Claude already knows the structure of its output - this skill surfaces it as an addressable widget so guidance attaches directly to the unit it's about.
 
 ## When it activates
 

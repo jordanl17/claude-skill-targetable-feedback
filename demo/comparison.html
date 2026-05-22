@@ -264,12 +264,12 @@
             <div class="assistant-line" style="color: var(--text-tertiary); font-size: 14px;">[draft of 5 paragraphs - paragraph 1, 2, 3, 4, 5...]</div>
 
             <div class="user-message">
-              Hey, the draft needs some tweaks. In the second paragraph, lean more into the productivity angle - the current framing feels too generic. And paragraph four is too long, can you tighten it to a single sentence? Oh, and there's a bullet under "next steps" that uses an acronym - the third one I think, or maybe the second - remove the acronym and just spell it out. Actually, you know what, drop that bullet entirely, it doesn't add anything.
+              In the second paragraph, lean more into the productivity angle. The fourth one is too long, tighten it to a single sentence. And drop the last paragraph entirely.
             </div>
 
             <div class="thinking">
               <svg class="icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.3"/></svg>
-              <span>Parsing which paragraph the user means... mapping "third bullet" to the structure... reconciling "or maybe the second"...</span>
+              <span>Counting paragraphs to locate "the second"... mapping "the fourth" onto the structure... confirming "the last paragraph"...</span>
             </div>
 
           </div>
@@ -292,7 +292,7 @@
       </div>
 
       <p class="annotation">
-        <strong>The problem:</strong> the user has to describe what to change, where it lives, and hope Claude maps the description to the right unit. Long prose, ambiguous references ("the third one I think"), high cognitive load for both sides.
+        <strong>The problem:</strong> the user has to describe where each change lives, and Claude has to map those descriptions onto its own structure. Ambiguity creeps in fast.
       </p>
     </div>
 
