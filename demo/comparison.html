@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>targetable-feedback - before/after comparison</title>
+<style>
+  :root {
+    --main-bg: #f8f7f5;
+    --main-bg-elevated: #efeeec;
+    --surface: #ffffff;
+    --text-primary: #1a1816;
+    --text-secondary: #5a5450;
+    --text-tertiary: #8a8278;
+    --text-quaternary: #b3ada3;
+    --border-tertiary: rgba(26, 24, 22, 0.06);
+    --border-secondary: rgba(26, 24, 22, 0.12);
+    --info-bg: rgba(70, 100, 180, 0.10);
+    --info-text: #3a5da3;
+    --info-border: rgba(70, 100, 180, 0.25);
+    --danger-bg: rgba(180, 70, 60, 0.10);
+    --danger-text: #a64633;
+    --danger-border: rgba(180, 70, 60, 0.25);
+    --send-btn-bg: #c75e3c;
+    --font-serif: 'Charter', 'Iowan Old Style', 'Source Serif Pro', 'Georgia', serif;
+    --font-sans: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'Inter', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; font-family: var(--font-sans); color: var(--text-primary); background: #e9e6e0; min-height: 100vh; }
+  .page { padding: 32px; }
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+  .column { display: flex; flex-direction: column; gap: 12px; }
+  .column-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 0 4px;
+  }
+  .column-header h2 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+    color: var(--text-primary);
+  }
+  .column-header .tag {
+    font-size: 12px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .column-header .tag.bad { background: var(--danger-bg); color: var(--danger-text); }
+  .column-header .tag.good { background: rgba(90, 130, 60, 0.12); color: #5a7c30; }
+  .column-header .subtitle { font-size: 13px; color: var(--text-tertiary); margin: 2px 0 0; }
+
+  .claude-frame {
+    background: var(--main-bg);
+    border: 0.5px solid var(--border-secondary);
+    border-radius: 14px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 720px;
+    box-shadow: 0 4px 24px rgba(31, 29, 26, 0.06);
+  }
+
+  .title-bar {
+    padding: 12px 20px;
+    font-size: 13px;
+    color: var(--text-primary);
+    height: 44px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+    border-bottom: 0.5px solid var(--border-tertiary);
+  }
+  .title-bar .chevron { width: 12px; height: 12px; color: var(--text-tertiary); }
+
+  .chat-area {
+    flex: 1;
+    overflow: hidden;
+    padding: 24px 32px 8px;
+  }
+  .chat-inner { max-width: 100%; }
+
+  .user-message {
+    font-family: var(--font-serif);
+    font-size: 16px;
+    line-height: 1.55;
+    color: var(--text-primary);
+    background: var(--main-bg-elevated);
+    border-radius: 14px;
+    padding: 14px 18px;
+    margin: 0 0 24px auto;
+    max-width: 90%;
+    width: fit-content;
+  }
+  .assistant-line {
+    font-family: var(--font-serif);
+    font-size: 16px;
+    line-height: 1.55;
+    color: var(--text-primary);
+    margin: 0 0 16px;
+  }
+  .thinking {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    color: var(--text-tertiary);
+    font-size: 13px;
+    line-height: 1.4;
+    font-style: italic;
+    padding: 4px 0;
+  }
+  .thinking .icon { width: 12px; height: 12px; margin-top: 4px; flex-shrink: 0; }
+
+  /* Widget styling (matches the real widget) */
+  .doc {
+    padding: 4px 0;
+    font-family: var(--font-sans);
+    color: var(--text-primary);
+  }
+  .doc h1 { font-size: 20px; font-weight: 500; margin: 0 0 0.25rem; }
+  .doc .sub { font-size: 13px; color: var(--text-tertiary); margin: 0 0 1rem; }
+  .unit {
+    position: relative;
+    padding: 6px 12px;
+    margin: 1px 0;
+    border-radius: 8px;
+    font-size: 15px;
+    line-height: 1.5;
+    cursor: default;
+  }
+  .unit.marked { background: var(--info-bg); }
+  .unit.removing { background: var(--danger-bg); }
+  .guidance-wrap {
+    margin-top: 10px;
+    display: block;
+  }
+  .guidance-input {
+    width: 100%;
+    padding: 8px 28px 8px 10px;
+    border: 0.5px solid var(--info-border);
+    box-shadow: 0 0 0 1px var(--info-border);
+    border-radius: 8px;
+    font-size: 13px;
+    font-family: var(--font-sans);
+    background: var(--surface);
+    color: var(--text-primary);
+    min-height: 36px;
+    line-height: 1.5;
+  }
+  .remove-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--text-tertiary);
+  }
+  .remove-toggle.checked { color: var(--danger-text); }
+  .remove-checkbox {
+    width: 14px;
+    height: 14px;
+    accent-color: var(--danger-text);
+  }
+  .bar {
+    margin-top: 1.25rem;
+    padding: 12px 0;
+    border-top: 0.5px solid var(--border-tertiary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .count { font-size: 13px; color: var(--text-secondary); }
+  .applyBtn {
+    font-size: 13px;
+    padding: 6px 14px;
+    color: var(--info-text);
+    border: 0.5px solid var(--info-border);
+    background: var(--info-bg);
+    border-radius: 8px;
+    font-weight: 500;
+  }
+
+  /* Input bar */
+  .input-bar {
+    padding: 0 24px 16px;
+    flex-shrink: 0;
+  }
+  .input-bar-inner {
+    background: var(--surface);
+    border: 0.5px solid var(--border-tertiary);
+    border-radius: 18px;
+    padding: 12px 16px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 80px;
+    box-shadow: 0 1px 3px rgba(31, 29, 26, 0.04);
+  }
+  .input-text { color: var(--text-quaternary); font-size: 14px; }
+  .input-actions { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 12px; color: var(--text-tertiary); }
+  .input-actions .right { display: flex; align-items: center; gap: 8px; }
+  .send-btn {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: var(--send-btn-bg);
+    display: flex; align-items: center; justify-content: center; color: white;
+  }
+  .send-btn svg { width: 12px; height: 12px; }
+
+  /* Annotations */
+  .annotation {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    padding: 0 4px;
+  }
+  .annotation strong { color: var(--text-primary); }
+
+  .footer {
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin-top: 32px;
+    padding: 0 4px;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="grid">
+
+    <!-- BEFORE -->
+    <div class="column">
+      <div class="column-header">
+        <div>
+          <h2>Before</h2>
+          <div class="subtitle">Describing locations in prose, hoping Claude lines them up.</div>
+        </div>
+        <span class="tag bad">Without skill</span>
+      </div>
+
+      <div class="claude-frame">
+        <div class="title-bar">
+          Acme Notebook 2026 launch
+          <svg class="chevron" viewBox="0 0 12 12" fill="none"><path d="M3 4.5l3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+
+        <div class="chat-area">
+          <div class="chat-inner">
+
+            <div class="assistant-line">Here's a draft of the launch announcement.</div>
+
+            <div class="assistant-line" style="color: var(--text-tertiary); font-size: 14px;">[draft of 5 paragraphs - paragraph 1, 2, 3, 4, 5...]</div>
+
+            <div class="user-message">
+              Hey, the draft needs some tweaks. In the second paragraph, lean more into the productivity angle - the current framing feels too generic. And paragraph four is too long, can you tighten it to a single sentence? Oh, and there's a bullet under "next steps" that uses an acronym - the third one I think, or maybe the second - remove the acronym and just spell it out. Actually, you know what, drop that bullet entirely, it doesn't add anything.
+            </div>
+
+            <div class="thinking">
+              <svg class="icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.3"/></svg>
+              <span>Parsing which paragraph the user means... mapping "third bullet" to the structure... reconciling "or maybe the second"...</span>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="input-bar">
+          <div class="input-bar-inner">
+            <div class="input-text">Write a message...</div>
+            <div class="input-actions">
+              <span>+</span>
+              <div class="right">
+                <span>Opus 4.7 | Adaptive</span>
+                <div class="send-btn">
+                  <svg viewBox="0 0 16 16" fill="none"><path d="M8 13V3M4 7l4-4 4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <p class="annotation">
+        <strong>The problem:</strong> the user has to describe what to change, where it lives, and hope Claude maps the description to the right unit. Long prose, ambiguous references ("the third one I think"), high cognitive load for both sides.
+      </p>
+    </div>
+
+    <!-- AFTER -->
+    <div class="column">
+      <div class="column-header">
+        <div>
+          <h2>After</h2>
+          <div class="subtitle">Tap any unit. Type the change. Apply.</div>
+        </div>
+        <span class="tag good">With skill</span>
+      </div>
+
+      <div class="claude-frame">
+        <div class="title-bar">
+          Acme Notebook 2026 launch
+          <svg class="chevron" viewBox="0 0 12 12" fill="none"><path d="M3 4.5l3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+
+        <div class="chat-area">
+          <div class="chat-inner">
+
+            <div class="assistant-line" style="font-size: 14px; margin-bottom: 12px;">Here's a draft. Tap any section to add guidance, then hit apply.</div>
+
+            <div class="doc">
+              <h1>Acme Notebook 2026 launch</h1>
+              <p class="sub">Five paragraphs. Tap any one to add guidance.</p>
+
+              <div class="unit">Acme Notebook 2026 is our most ambitious release yet. We are redefining what a notebook can be for everyday work.</div>
+
+              <div class="unit marked">
+                Built for the modern knowledge worker, Acme Notebook 2026 brings a clean, focused writing experience that adapts to how you actually think.
+                <div class="guidance-wrap">
+                  <div class="guidance-input">lean into productivity angle</div>
+                  <label class="remove-toggle">
+                    <input type="checkbox" class="remove-checkbox">
+                    <span>Remove this section in the next draft</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="unit">Three new features: smart linking between notes, an AI-powered outline view, and seamless mobile sync that just works.</div>
+
+              <div class="unit marked">
+                Whether you are a writer, a researcher, or a student, you will feel at home from the first page. Acme Notebook 2026 is designed for everyone who thinks in writing.
+                <div class="guidance-wrap">
+                  <div class="guidance-input">tighten to one sentence</div>
+                  <label class="remove-toggle">
+                    <input type="checkbox" class="remove-checkbox">
+                    <span>Remove this section in the next draft</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="unit removing">
+                Available March 15th on web, desktop, and mobile. Sign up at acme.com to be the first to know.
+                <div class="guidance-wrap">
+                  <div class="guidance-input" style="opacity: 0.5;"></div>
+                  <label class="remove-toggle checked">
+                    <input type="checkbox" class="remove-checkbox" checked>
+                    <span>Remove this section in the next draft</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="bar">
+                <span class="count">3 changes pending</span>
+                <button class="applyBtn">Apply edits</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="input-bar">
+          <div class="input-bar-inner">
+            <div class="input-text">Write a message...</div>
+            <div class="input-actions">
+              <span>+</span>
+              <div class="right">
+                <span>Opus 4.7 | Adaptive</span>
+                <div class="send-btn">
+                  <svg viewBox="0 0 16 16" fill="none"><path d="M8 13V3M4 7l4-4 4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <p class="annotation">
+        <strong>The fix:</strong> feedback attaches directly to the unit it's about. No location-describing, no ambiguity. Two paragraphs revised, one removed, applied as a single revision pass.
+      </p>
+    </div>
+
+  </div>
+
+  <p class="footer">targetable-feedback - per-section feedback for Claude drafts</p>
+</div>
+</body>
+</html>
