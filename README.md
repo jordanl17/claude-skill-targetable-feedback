@@ -22,7 +22,10 @@ The skill does not fire on one-shot drafting requests, single-edit feedback like
 ## Install
 
 1. Download [`targetable-feedback.zip`](https://github.com/jordanl17/claude-skill-targetable-feedback/releases/latest/download/targetable-feedback.zip) from the latest release.
-2. In claude.ai, go to Settings, then find the Skills section (the exact menu path varies by claude.ai version), and upload the ZIP.
+2. In claude.ai, open **Customize**.
+3. Go to **Skills**.
+4. Click the **+** button.
+5. Choose **Create Skill**, then **Upload a Skill**, and select the ZIP.
 
 ### Build from source
 

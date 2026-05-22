@@ -27,16 +27,41 @@ Parsing is deterministic. A bullet reading "Goal 1: reduce time" becomes a unit 
 
 ## Parsing into units
 
-- Paragraphs become top-level units.
-- Top-level bullets become top-level units (add the `bullet` class).
-- Direct sub-bullets of a bullet unit become sub-units nested inside the parent's content (add the `sub-unit` class).
+Three independent rendering modes. Choose per unit based on what helps the user navigate the content.
+
+### Top-level units
+
+| Mode | When to use | Markup |
+|------|-------------|--------|
+| **Plain** | Prose-like sections, OKRs, RFC items, brainstormed ideas, anything where a marker would just add visual noise. | `<div class="unit plain">{{CONTENT}}</div>` (no `<span class="num">`) |
+| **Numbered** | Items are ordered and the user might refer to them by number ("redo step 3"). Recipes, sequential instructions, ranked lists. | `<div class="unit"><span class="num">N</span>{{CONTENT}}</div>` |
+| **Bulleted** | Source content was authored as a bullet list AND the bullets are part of how the user thinks about the items. Shopping lists, feature comparisons, checklists. Items aren't inherently ordered. | `<div class="unit plain bullet">{{CONTENT}}</div>` (no `<span class="num">`) |
+
+Numbers and bullets are **independent decisions**. Bullets do not imply numbers; numbers do not imply bullets. Combining them (`<div class="unit bullet"><span class="num">N</span>...</div>`) is also valid but rare - reserve it for content where both the order and the bullet-ness genuinely matter.
+
+### Sub-units
+
+Same three modes, with sub-unit's `◦` marker instead of `•`:
+
+| Mode | Markup |
+|------|--------|
+| **Plain** | `<div class="unit sub-unit plain">{{CONTENT}}</div>` |
+| **Numbered** | `<div class="unit sub-unit"><span class="num">N.M</span>{{CONTENT}}</div>` (default, also keeps `◦` marker) |
+| **Bulleted** | `<div class="unit sub-unit bullet">{{CONTENT}}</div>` (no `<span class="num">`, keeps `◦` marker) |
+
+Sub-units don't have to match their parent's mode but usually should. A plain parent with bullet sub-units is fine if the sub-bullets are genuinely list-like beneath a prose-like parent.
+
+### Other content rules
+
 - Sub-sub-bullets and deeper flatten into their containing sub-unit's text. Users can address them in guidance.
 - Headings become section separators (`<h3>`), not addressable units.
 - Inline code stays inline within its containing unit.
 - Fenced code blocks become their own unit only if surrounded by prose. If the content is mostly code, do not activate.
 - Tables behave like code blocks: tolerated if incidental, disqualifying if dominant.
 
-**Data-id convention.** Top-level units get sequential integer IDs (`"1"`, `"2"`, `"3"`, ...). Sub-units get `"{parentId}.{N}"` where `N` is the 1-based index of the sub-bullet under its parent (`"9.1"`, `"9.2"`, ...). The dot-notation generalizes conceptually to deeper levels (`"9.2.1"`), but v1.1 caps parsing at 2 levels - anything deeper flattens into the containing sub-unit's text.
+**Default bias.** When unsure, plain reads cleanest. Reach for numbers when order matters; reach for bullets when the source was already a bullet list and that bullet-ness is part of the meaning.
+
+**Data-id convention.** Every unit gets a `data-id` whether the number is visible or not - it's used internally for the revision payload. Top-level units get sequential integer IDs (`"1"`, `"2"`, `"3"`, ...). Sub-units get `"{parentId}.{N}"` (`"9.1"`, `"9.2"`, ...). The dot-notation generalizes conceptually to deeper levels (`"9.2.1"`), but v1.1 caps parsing at 2 levels - anything deeper flattens into the containing sub-unit's text.
 
 Set `data-snippet` to a short identifier (3-6 words) of the unit's content. Sub-units get their own snippet describing the sub-bullet, not the parent's snippet.
 
@@ -52,6 +77,8 @@ Set `data-snippet` to a short identifier (3-6 words) of the unit's content. Sub-
 **The assistant message around the widget.** One short lead line before the widget signals that it is interactive and how to use it. Example: "Here's the draft. Tap any unit to add guidance, apply when ready."
 
 Do not repeat the draft content in prose around the widget. The widget is the surface for the content. Writing it twice is the primary anti-pattern.
+
+**End the assistant message with the `show_widget` call. Write nothing after it.** Trailing prose - summaries, explanations of how units work, follow-up questions, "let me know what you think" - keeps the response in a streaming state. claude.ai overlays a pulsing skeleton on the widget while the message is still streaming, so users see the widget but cannot interact with it until streaming completes. The `show_widget` call IS the end of the message.
 
 ## The revision loop
 
