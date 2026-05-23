@@ -581,15 +581,31 @@ def grade_run(eval_name, run_dir, is_baseline):
     if eval_name == "trigger-generative-fires" and is_baseline:
         widget = load_text(run_dir / "outputs" / "widget.html")
         response = load_text(run_dir / "outputs" / "response.md")
-        return [
+        expectations = [
             assertion("widget_html_present", "class=\"unit" in widget, f"widget contains unit div: {'class=\"unit' in widget}"),
             assertion("min_5_units", count_top_level_units(widget) >= 5, f"top-level units={count_top_level_units(widget)}"),
             assertion("no_duplicate_prose", len(response) < 2000, f"response.md length={len(response)}"),
         ]
-    # Pass is_baseline to graders that accept it
-    if eval_name in ("trigger-single-edit-skips", "trigger-code-task-skips", "verbatim-exact-prose", "verbatim-awkward-phrasing", "subunits-2-level-nesting", "removal-renumbers-siblings", "removal-subtree-on-parent", "mixed-shapes-document"):
-        return grader(run_dir, is_baseline=is_baseline)
-    return grader(run_dir)
+    elif eval_name in ("trigger-single-edit-skips", "trigger-code-task-skips", "verbatim-exact-prose", "verbatim-awkward-phrasing", "subunits-2-level-nesting", "removal-renumbers-siblings", "removal-subtree-on-parent", "mixed-shapes-document"):
+        expectations = grader(run_dir, is_baseline=is_baseline)
+    else:
+        expectations = grader(run_dir)
+    # Universal slot-fill check: any produced widget.html must have CSS and JS substituted (not literal slot tokens).
+    widget_path = run_dir / "outputs" / "widget.html"
+    if not is_baseline and widget_path.exists():
+        widget = widget_path.read_text()
+        if widget.strip():
+            has_css_token = "{{WIDGET_CSS}}" in widget
+            has_js_token = "{{WIDGET_JS}}" in widget
+            unfilled = [token for token, present in (("{{WIDGET_CSS}}", has_css_token), ("{{WIDGET_JS}}", has_js_token)) if present]
+            expectations.append(
+                assertion(
+                    "no_unfilled_slot_tokens: WIDGET_CSS and WIDGET_JS substituted into widget",
+                    len(unfilled) == 0,
+                    f"unfilled tokens present: {unfilled}" if unfilled else "",
+                )
+            )
+    return expectations
 
 
 def main():

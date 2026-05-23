@@ -4,7 +4,7 @@
     {
       "id": "trigger-generative-fires",
       "prompt": "I'm migrating our authentication system off of AWS Cognito onto Auth0. Draft an RFC covering motivation, current state, proposed approach, migration phases, and rollback strategy. Let me iterate on each section once you've written it.",
-      "expected_output": "Skill activates: SKILL.md is read, resources/widget.html is referenced, widget HTML is generated and a visualize:show_widget call is attempted (or the HTML is otherwise emitted).",
+      "expected_output": "Skill activates: SKILL.md is read, assets/widget.html is referenced, widget HTML is generated and a visualize:show_widget call is attempted (or the HTML is otherwise emitted).",
       "files": []
     },
     {

@@ -1,0 +1,120 @@
+<style>{{WIDGET_CSS}}</style>
+
+<h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);">
+  Interactive draft with per-unit feedback. Tap any unit to add guidance. Apply when ready.
+</h2>
+
+<div class="doc">
+  <h1>{{DOCUMENT_TITLE}}</h1>
+  <p class="sub">{{SUB_LINE}}</p>
+
+  <div class="unit" data-id="N" data-snippet="{{SHORT_IDENTIFIER}}">
+    <span class="num">N</span>{{UNIT_CONTENT}}
+    <div class="guidance-wrap">
+      <textarea class="guidance-input" placeholder="How should this change?"></textarea>
+      <button class="clear-x" aria-label="Clear guidance"><i class="ti ti-x" style="font-size:14px;" aria-hidden="true"></i></button>
+    </div>
+  </div>
+
+  <div class="unit plain" data-id="N" data-snippet="{{SHORT_IDENTIFIER}}">
+    {{UNIT_CONTENT}}
+    <div class="guidance-wrap">
+      <textarea class="guidance-input" placeholder="How should this change?"></textarea>
+      <button class="clear-x" aria-label="Clear guidance"><i class="ti ti-x" style="font-size:14px;" aria-hidden="true"></i></button>
+    </div>
+  </div>
+
+  <div class="unit plain" data-id="N" data-snippet="{{PARENT_IDENTIFIER}}">
+    {{PARENT_CONTENT}}
+    <div class="unit sub-unit plain" data-id="N.1" data-snippet="{{SUB_IDENTIFIER_1}}">
+      {{SUB_CONTENT_1}}
+      <div class="guidance-wrap">
+        <textarea class="guidance-input" placeholder="How should this change?"></textarea>
+        <button class="clear-x" aria-label="Clear guidance"><i class="ti ti-x" style="font-size:14px;" aria-hidden="true"></i></button>
+      </div>
+    </div>
+    <div class="unit sub-unit plain" data-id="N.2" data-snippet="{{SUB_IDENTIFIER_2}}">
+      {{SUB_CONTENT_2}}
+      <div class="guidance-wrap">
+        <textarea class="guidance-input" placeholder="How should this change?"></textarea>
+        <button class="clear-x" aria-label="Clear guidance"><i class="ti ti-x" style="font-size:14px;" aria-hidden="true"></i></button>
+      </div>
+    </div>
+    <div class="guidance-wrap">
+      <textarea class="guidance-input" placeholder="How should this change?"></textarea>
+      <button class="clear-x" aria-label="Clear guidance"><i class="ti ti-x" style="font-size:14px;" aria-hidden="true"></i></button>
+    </div>
+  </div>
+
+  <h3>{{SECTION_NAME}}</h3>
+
+  <div class="unit bullet" data-id="N" data-snippet="{{SHORT_IDENTIFIER}}">
+    <span class="num">N</span>{{UNIT_CONTENT}}
+    <div class="guidance-wrap">
+      <textarea class="guidance-input" placeholder="How should this change?"></textarea>
+      <button class="clear-x" aria-label="Clear guidance"><i class="ti ti-x" style="font-size:14px;" aria-hidden="true"></i></button>
+    </div>
+  </div>
+
+  <div class="unit plain bullet" data-id="N" data-snippet="{{SHORT_IDENTIFIER}}">
+    {{UNIT_CONTENT}}
+    <div class="guidance-wrap">
+      <textarea class="guidance-input" placeholder="How should this change?"></textarea>
+      <button class="clear-x" aria-label="Clear guidance"><i class="ti ti-x" style="font-size:14px;" aria-hidden="true"></i></button>
+    </div>
+  </div>
+
+  <div class="unit bullet" data-id="N" data-snippet="{{PARENT_IDENTIFIER}}">
+    <span class="num">N</span>{{PARENT_CONTENT}}
+    <div class="unit sub-unit" data-id="N.1" data-snippet="{{SUB_IDENTIFIER_1}}">
+      <span class="num">N.1</span>{{SUB_CONTENT_1}}
+      <div class="guidance-wrap">
+        <textarea class="guidance-input" placeholder="How should this change?"></textarea>
+        <button class="clear-x" aria-label="Clear guidance"><i class="ti ti-x" style="font-size:14px;" aria-hidden="true"></i></button>
+      </div>
+    </div>
+    <div class="unit sub-unit" data-id="N.2" data-snippet="{{SUB_IDENTIFIER_2}}">
+      <span class="num">N.2</span>{{SUB_CONTENT_2}}
+      <div class="guidance-wrap">
+        <textarea class="guidance-input" placeholder="How should this change?"></textarea>
+        <button class="clear-x" aria-label="Clear guidance"><i class="ti ti-x" style="font-size:14px;" aria-hidden="true"></i></button>
+      </div>
+    </div>
+    <div class="guidance-wrap">
+      <textarea class="guidance-input" placeholder="How should this change?"></textarea>
+      <button class="clear-x" aria-label="Clear guidance"><i class="ti ti-x" style="font-size:14px;" aria-hidden="true"></i></button>
+    </div>
+  </div>
+
+  <div class="unit bullet" data-id="N" data-snippet="{{PARENT_IDENTIFIER}}">
+    <span class="num">N</span>{{PARENT_CONTENT}}
+    <div class="unit sub-unit" data-id="N.1" data-snippet="{{SUB_IDENTIFIER_1}}">
+      <span class="num">N.1</span>{{SUB_CONTENT_1}}
+      <div class="guidance-wrap">
+        <textarea class="guidance-input" placeholder="How should this change?"></textarea>
+        <button class="clear-x" aria-label="Clear guidance"><i class="ti ti-x" style="font-size:14px;" aria-hidden="true"></i></button>
+      </div>
+    </div>
+    <div class="unit sub-unit changed" data-id="N.2" data-snippet="{{SUB_IDENTIFIER_2}}">
+      <span class="num">N.2</span>{{REVISED_SUB_CONTENT_2}} <span class="tag changed">changed</span>
+      <div class="guidance-wrap">
+        <textarea class="guidance-input" placeholder="How should this change?"></textarea>
+        <button class="clear-x" aria-label="Clear guidance"><i class="ti ti-x" style="font-size:14px;" aria-hidden="true"></i></button>
+      </div>
+    </div>
+    <div class="guidance-wrap">
+      <textarea class="guidance-input" placeholder="How should this change?"></textarea>
+      <button class="clear-x" aria-label="Clear guidance"><i class="ti ti-x" style="font-size:14px;" aria-hidden="true"></i></button>
+    </div>
+  </div>
+
+  <div class="bar">
+    <span class="count">No guidance added</span>
+    <div class="actions">
+      <button class="clear-all" id="clearAll" disabled>Clear all</button>
+      <button id="applyBtn" disabled>Apply edits</button>
+    </div>
+  </div>
+</div>
+
+<script>{{WIDGET_JS}}</script>

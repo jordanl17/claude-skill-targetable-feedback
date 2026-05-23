@@ -63,7 +63,7 @@ If you want to install from a specific commit or modify the skill locally:
 2. From the repo root, run `./scripts/build-zip.sh` (or manually zip the `targetable-feedback/` directory).
 3. The resulting `targetable-feedback.zip` can be uploaded via claude.ai as above.
 
-The archive must contain a single `targetable-feedback/` folder at its root with `SKILL.md` and `resources/` inside.
+The archive must contain a single `targetable-feedback/` folder at its root with `SKILL.md` and `assets/` inside.
 
 ## Limitations
 

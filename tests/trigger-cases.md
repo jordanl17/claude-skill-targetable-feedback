@@ -6,7 +6,7 @@ Cases for verifying the SKILL.md description fires on the right intents and skip
 
 - **Prompt**: what to type into CC.
 - **Expected**: activate or skip.
-- **Success in CC**: what counts as a passing run. CC cannot render the widget (no `visualize:show_widget` in terminal), so success is instruction-following: the skill is recognized, `SKILL.md` is read, the widget template at `resources/widget.html` is referenced, and CC describes filling slots and calling `show_widget`. Failure modes: the skill is ignored when it should fire, or invoked when it should not.
+- **Success in CC**: what counts as a passing run. CC cannot render the widget (no `visualize:show_widget` in terminal), so success is instruction-following: the skill is recognized, `SKILL.md` is read, the widget template at `assets/widget.html` is referenced, and CC describes filling slots and calling `show_widget`. Failure modes: the skill is ignored when it should fire, or invoked when it should not.
 
 ## Path 1: generative activations
 
@@ -14,7 +14,7 @@ Cases for verifying the SKILL.md description fires on the right intents and skip
 
 - **Prompt**: "Draft an RFC for migrating our auth system to OAuth2 and let me iterate on each section."
 - **Expected**: activate.
-- **Success in CC**: CC reads `SKILL.md`, generates the RFC content, loads `resources/widget.html`, walks through filling unit slots, and references the `show_widget` call shape.
+- **Success in CC**: CC reads `SKILL.md`, generates the RFC content, loads `assets/widget.html`, walks through filling unit slots, and references the `show_widget` call shape.
 
 ### Case 1.2
 
@@ -81,7 +81,7 @@ Fill this in after running the cases.
 
 ## Doc consistency: sub-unit rules (v1.1)
 
-CC cannot render the widget, but it can verify that `SKILL.md` and `resources/widget.html` describe sub-bullet behavior consistently. Each check is a grep-style read against both files. The skill ships broken if these drift.
+CC cannot render the widget, but it can verify that `SKILL.md` and `assets/widget.html` describe sub-bullet behavior consistently. Each check is a grep-style read against both files. The skill ships broken if these drift.
 
 ### Check D.1 - data-id notation
 
@@ -98,7 +98,7 @@ CC cannot render the widget, but it can verify that `SKILL.md` and `resources/wi
 ### Check D.3 - changed tag scope
 
 - **SKILL.md** must state: the changed tag applies at whatever level actually changed; if only 9.2 changed, only 9.2 gets the tag.
-- **widget.html** must include: a nested changed-unit example showing `changed` class + `changed-tag` on a sub-unit while its parent remains unchanged.
+- **widget.html** must include: a nested changed-unit example showing the `changed` class on the unit + a `<span class="tag changed">` after the content, on a sub-unit while its parent remains unchanged.
 
 ### Check D.4 - sub-unit only nests under bullet parents
 

@@ -69,12 +69,23 @@ Set `data-snippet` to a short identifier (3-6 words) of the unit's content. Sub-
 
 ## Rendering
 
-1. Load the widget template from `resources/widget.html`.
-2. Fill the slots: `{{DOCUMENT_TITLE}}`, `{{SUB_LINE}}`, each unit's `data-id`, `data-snippet`, and `{{UNIT_CONTENT}}`, and `{{SECTION_NAME}}` for any section headers.
-3. Call `visualize:show_widget` with:
+The widget is split across three files in `assets/` for maintainability:
+
+- `assets/widget.html` - HTML structure with template slots (the file you fill in)
+- `assets/widget.css` - styles, inlined into the widget at render time
+- `assets/widget.js` - behaviour (click handlers, apply payload), inlined at render time
+
+To produce the final `widget_code`:
+
+1. Read `assets/widget.html`. It contains two literal placeholder tokens: `{{WIDGET_CSS}}` inside a `<style>` tag and `{{WIDGET_JS}}` inside a `<script>` tag.
+2. Read `assets/widget.css` and `assets/widget.js`. Replace `{{WIDGET_CSS}}` with the CSS file's contents and `{{WIDGET_JS}}` with the JS file's contents. These are mechanical text substitutions - do not modify the CSS or JS.
+3. Fill the content slots: `{{DOCUMENT_TITLE}}`, `{{SUB_LINE}}`, each unit's `data-id`, `data-snippet`, and `{{UNIT_CONTENT}}`, and `{{SECTION_NAME}}` for any section headers.
+4. Call `visualize:show_widget` with:
    - `title`: `targetable_draft_{short-descriptor}`
    - `loading_messages`: 3-4 playful messages about preparing the widget
-   - `widget_code`: the filled template
+   - `widget_code`: the fully assembled HTML (CSS and JS inlined, slots filled)
+
+If `{{WIDGET_CSS}}` or `{{WIDGET_JS}}` appears in the rendered output, the assembly step was skipped - this is the most common failure mode.
 
 **The assistant message around the widget.** One short lead line before the widget signals that it is interactive and how to use it. Example: "Here's the draft. Tap any unit to add guidance, apply when ready."
 
@@ -86,7 +97,7 @@ When the widget calls `sendPrompt` with per-unit guidance:
 
 1. Apply only the marked changes. Unmarked units come back byte-identical.
 2. Re-render the widget with the new content.
-3. On each changed unit or sub-unit, add the `changed` class and a `<span class="changed-tag">changed</span>` after the content.
+3. On each changed unit or sub-unit, add the `changed` class and a `<span class="tag changed">changed</span>` after the content.
 4. Show the rev pill in the `<h1>`: `<span class="rev-pill">rev N</span>`, incremented per revision.
 5. Preserve `data-id` numbering across revisions, including sub-unit IDs, so the user can keep iterating.
 

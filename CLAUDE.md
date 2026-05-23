@@ -4,14 +4,14 @@ This repo is the `targetable-feedback` Claude skill - a `SKILL.md` + interactive
 
 ## Layout
 
-- `targetable-feedback/` - the skill itself (`SKILL.md`, `resources/widget.html`)
+- `targetable-feedback/` - the skill itself (`SKILL.md`, `assets/widget.html`)
 - `tests/` - testing docs and all eval scaffolding (manual checklists at the top, programmatic suite under `tests/evals/`)
 - `demo/` - the animated GIF and static comparison shown in the README
 - `scripts/build-zip.sh` - packages the skill folder into the distributable zip
 
 ## Before changing the skill, read the testing docs
 
-[`tests/EVALS.md`](tests/EVALS.md) is the entry point. It explains three test surfaces (manual trigger walkthrough, programmatic eval suite, description tuning) and tells you which to run based on what you're changing. **Do not skip it.** Changes to `SKILL.md` or `resources/widget.html` should be backed by either Surface 1 or Surface 2.
+[`tests/EVALS.md`](tests/EVALS.md) is the entry point. It explains three test surfaces (manual trigger walkthrough, programmatic eval suite, description tuning) and tells you which to run based on what you're changing. **Do not skip it.** Changes to `SKILL.md` or `assets/widget.html` should be backed by either Surface 1 or Surface 2.
 
 ## Release pipeline
 

@@ -10,7 +10,7 @@ Three test surfaces, in order of increasing effort. Pick the right one for the c
 
 ## Surface 1: Manual trigger walkthrough
 
-The checklist lives at [`tests/trigger-cases.md`](trigger-cases.md). 8 prompts you type into a fresh Claude Code session in an unrelated directory. Activate-or-skip decisions are observable in CC's output (does it read `SKILL.md`, reference `resources/widget.html`, attempt `show_widget`?).
+The checklist lives at [`tests/trigger-cases.md`](trigger-cases.md). 8 prompts you type into a fresh Claude Code session in an unrelated directory. Activate-or-skip decisions are observable in CC's output (does it read `SKILL.md`, reference `assets/widget.html`, attempt `show_widget`?).
 
 Use this as a quick sanity check whenever you touch the description.
 
