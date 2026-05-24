@@ -5,12 +5,12 @@ Three test surfaces, in order of increasing effort. Pick the right one for the c
 | Surface | What it catches | When to run | Time |
 |---|---|---|---|
 | 1. Manual trigger walkthrough | Whether SKILL.md description fires/skips correctly in real CC | After editing the SKILL.md `description:` frontmatter | ~5 min |
-| 2. Programmatic eval suite | Verbatim preservation, sub-unit IDs, removal renumbering, plus trigger precision | After editing SKILL.md body, parsing rules, or widget.html | ~15 min |
+| 2. Programmatic eval suite | Verbatim preservation, sub-unit IDs, removal renumbering, plus trigger precision | After editing SKILL.md body, parsing rules, or anything in `widget-src/` | ~15 min |
 | 3. Description optimization | Trigger-rate tuning across many phrasings | Currently broken for this skill - see below | n/a |
 
 ## Surface 1: Manual trigger walkthrough
 
-The checklist lives at [`tests/trigger-cases.md`](trigger-cases.md). 8 prompts you type into a fresh Claude Code session in an unrelated directory. Activate-or-skip decisions are observable in CC's output (does it read `SKILL.md`, reference `assets/widget.html`, attempt `show_widget`?).
+The checklist lives at [`tests/trigger-cases.md`](trigger-cases.md). 8 prompts you type into a fresh Claude Code session in an unrelated directory. Activate-or-skip decisions are observable in CC's output (does it read `SKILL.md`, reference `assets/widget-bundled.html`, attempt `show_widget`?).
 
 Use this as a quick sanity check whenever you touch the description.
 
@@ -39,6 +39,16 @@ The 9 scenarios in [`tests/evals/evals.json`](evals/evals.json) cover the four c
 - **Sub-unit handling** (1 scenario): 3 parents × 2-3 sub-bullets each, checks dot-notation `data-id` values like `1.1`, `2.3`.
 - **Removal flow** (2 scenarios): siblings renumber, parent removal also drops the subtree.
 - **Mixed shapes** (1 scenario): one document with intro prose paragraphs + `## Open risks` heading + bulleted parents with sub-bullets + closing prose. Checks that headings render as `<h3>` (not units), plain and bulleted shapes coexist correctly, and verbatim is preserved across all shapes.
+
+### Editing the widget sources
+
+The widget ships as `targetable-feedback/assets/widget-bundled.html` (a single file with CSS and JS inlined). The split sources live outside the skill folder at `widget-src/` (`widget.html`, `widget.css`, `widget.js`) so they don't bloat the distributed zip. After editing any source, regenerate the bundle:
+
+```bash
+python3 scripts/assemble.py
+```
+
+`scripts/build-zip.sh` runs this automatically before zipping locally, and the release workflow runs it before producing the GitHub release zip - so the released artifact always reflects the latest source.
 
 ### Iteration 1 baseline (skill v0.3.0)
 

@@ -38,8 +38,9 @@ document.querySelectorAll('.guidance-input').forEach(input => {
     else { guidance.delete(id); unit.classList.remove('marked'); }
     updateBar();
   });
-  input.addEventListener('blur', () => {
+  input.addEventListener('blur', (e) => {
     const unit = input.closest('.unit');
+    if (e.relatedTarget && (e.relatedTarget.closest('.remove-toggle') || e.relatedTarget.closest('.clear-x'))) return;
     if (!input.value.trim() && !unit.classList.contains('removing')) unit.classList.remove('open');
   });
   input.addEventListener('keydown', (e) => { if (e.key === 'Escape') input.blur(); });
@@ -64,6 +65,7 @@ document.querySelectorAll('.remove-checkbox').forEach(cb => {
     const unit = cb.closest('.unit');
     const id = unit.dataset.id;
     const input = ownInput(unit);
+    unit.classList.add('open');
     if (cb.checked) {
       removed.add(id);
       unit.classList.add('removing');

@@ -43,15 +43,7 @@ Numbers and bullets are **independent decisions**. Bullets do not imply numbers;
 
 ### Sub-units
 
-Same three modes, with sub-unit's `◦` marker instead of `•`:
-
-| Mode | Markup |
-|------|--------|
-| **Plain** | `<div class="unit sub-unit plain">{{CONTENT}}</div>` |
-| **Numbered** | `<div class="unit sub-unit"><span class="num">N.M</span>{{CONTENT}}</div>` (default, also keeps `◦` marker) |
-| **Bulleted** | `<div class="unit sub-unit bullet">{{CONTENT}}</div>` (no `<span class="num">`, keeps `◦` marker) |
-
-Sub-units don't have to match their parent's mode but usually should. A plain parent with bullet sub-units is fine if the sub-bullets are genuinely list-like beneath a prose-like parent.
+Add the `sub-unit` class to any of the three modes; the widget renders a `◦` marker automatically. Numbered sub-units use `N.M` in the `<span class="num">`. Sub-units don't have to match their parent's mode but usually should.
 
 ### Other content rules
 
@@ -61,35 +53,21 @@ Sub-units don't have to match their parent's mode but usually should. A plain pa
 - Fenced code blocks become their own unit only if surrounded by prose. If the content is mostly code, do not activate.
 - Tables behave like code blocks: tolerated if incidental, disqualifying if dominant.
 
-**Default bias.** When unsure, plain reads cleanest. Reach for numbers when order matters; reach for bullets when the source was already a bullet list and that bullet-ness is part of the meaning.
+**Default bias.** When unsure, plain. Numbers for order; bullets when the source was authored as a list and that matters.
 
-**Data-id convention.** Every unit gets a `data-id` whether the number is visible or not - it's used internally for the revision payload. Top-level units get sequential integer IDs (`"1"`, `"2"`, `"3"`, ...). Sub-units get `"{parentId}.{N}"` (`"9.1"`, `"9.2"`, ...). The dot-notation generalizes conceptually to deeper levels (`"9.2.1"`), but v1.1 caps parsing at 2 levels - anything deeper flattens into the containing sub-unit's text.
-
-Set `data-snippet` to a short identifier (3-6 words) of the unit's content. Sub-units get their own snippet describing the sub-bullet, not the parent's snippet.
+**Data-id and snippet.** Every unit gets a `data-id` (used internally for the revision payload): top-level units use `"1"`, `"2"`, ...; sub-units use `"{parentId}.{N}"` like `"9.1"`. Capped at 2 levels - deeper nesting flattens into the containing sub-unit. Every unit also gets a `data-snippet` - a 3-6 word identifier of its own content (sub-units describe themselves, not the parent).
 
 ## Rendering
 
-The widget is split across three files in `assets/` for maintainability:
+Read `assets/widget-bundled.html`. It contains the full widget with styles and behaviour already inlined. Fill the content slots (`{{DOCUMENT_TITLE}}`, `{{SUB_LINE}}`, each unit's `data-id`, `data-snippet`, `{{UNIT_CONTENT}}`, `{{SECTION_NAME}}`) and pass the result to `visualize:show_widget` as `widget_code`.
 
-- `assets/widget.html` - HTML structure with template slots (the file you fill in)
-- `assets/widget.css` - styles, inlined into the widget at render time
-- `assets/widget.js` - behaviour (click handlers, apply payload), inlined at render time
+Call shape:
 
-To produce the final `widget_code`:
+- `title`: `targetable_draft_{short-descriptor}`
+- `loading_messages`: 3-4 playful messages about preparing the widget
+- `widget_code`: the filled HTML
 
-1. Read `assets/widget.html`. It contains two literal placeholder tokens: `{{WIDGET_CSS}}` inside a `<style>` tag and `{{WIDGET_JS}}` inside a `<script>` tag.
-2. Read `assets/widget.css` and `assets/widget.js`. Replace `{{WIDGET_CSS}}` with the CSS file's contents and `{{WIDGET_JS}}` with the JS file's contents. These are mechanical text substitutions - do not modify the CSS or JS.
-3. Fill the content slots: `{{DOCUMENT_TITLE}}`, `{{SUB_LINE}}`, each unit's `data-id`, `data-snippet`, and `{{UNIT_CONTENT}}`, and `{{SECTION_NAME}}` for any section headers.
-4. Call `visualize:show_widget` with:
-   - `title`: `targetable_draft_{short-descriptor}`
-   - `loading_messages`: 3-4 playful messages about preparing the widget
-   - `widget_code`: the fully assembled HTML (CSS and JS inlined, slots filled)
-
-If `{{WIDGET_CSS}}` or `{{WIDGET_JS}}` appears in the rendered output, the assembly step was skipped - this is the most common failure mode.
-
-**The assistant message around the widget.** One short lead line before the widget signals that it is interactive and how to use it. Example: "Here's the draft. Tap any unit to add guidance, apply when ready."
-
-Do not repeat the draft content in prose around the widget. The widget is the surface for the content. Writing it twice is the primary anti-pattern.
+Write one short lead line before the widget, e.g. "Here's the draft. Tap any unit to add guidance, apply when ready." Never duplicate the draft content in prose around the widget.
 
 ## The revision loop
 

@@ -29,6 +29,8 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ needs.release-please.outputs.tag_name }}
+      - name: Build widget bundle
+        run: python3 scripts/assemble.py
       - name: Build ZIPs
         run: |
           zip -r targetable-feedback.zip targetable-feedback

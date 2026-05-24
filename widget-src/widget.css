@@ -88,7 +88,7 @@
   margin-top: 10px;
   position: relative;
 }
-.unit.open > .guidance-wrap, .unit.marked > .guidance-wrap { display: block; }
+.unit.open > .guidance-wrap, .unit.marked > .guidance-wrap, .unit.removing > .guidance-wrap, .unit:focus-within > .guidance-wrap { display: block; }
 .guidance-input {
   width: 100%;
   padding: 8px 28px 8px 10px;

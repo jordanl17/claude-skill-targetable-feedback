@@ -4,14 +4,16 @@ This repo is the `targetable-feedback` Claude skill - a `SKILL.md` + interactive
 
 ## Layout
 
-- `targetable-feedback/` - the skill itself (`SKILL.md`, `assets/widget.html`)
+- `targetable-feedback/` - the skill itself, byte-for-byte what ships in the zip (`SKILL.md`, `assets/widget-bundled.html`)
+- `widget-src/` - editable widget sources (`widget.html`, `widget.css`, `widget.js`) - NOT shipped, only inputs to the bundler
 - `tests/` - testing docs and all eval scaffolding (manual checklists at the top, programmatic suite under `tests/evals/`)
 - `demo/` - the animated GIF and static comparison shown in the README
-- `scripts/build-zip.sh` - packages the skill folder into the distributable zip
+- `scripts/assemble.py` - bundles `widget-src/*` into `targetable-feedback/assets/widget-bundled.html`
+- `scripts/build-zip.sh` - runs assemble.py then zips the `targetable-feedback/` folder
 
 ## Before changing the skill, read the testing docs
 
-[`tests/EVALS.md`](tests/EVALS.md) is the entry point. It explains three test surfaces (manual trigger walkthrough, programmatic eval suite, description tuning) and tells you which to run based on what you're changing. **Do not skip it.** Changes to `SKILL.md` or `assets/widget.html` should be backed by either Surface 1 or Surface 2.
+[`tests/EVALS.md`](tests/EVALS.md) is the entry point. It explains three test surfaces (manual trigger walkthrough, programmatic eval suite, description tuning) and tells you which to run based on what you're changing. **Do not skip it.** Changes to `SKILL.md` or `assets/widget-bundled.html` should be backed by either Surface 1 or Surface 2.
 
 ## Release pipeline
 

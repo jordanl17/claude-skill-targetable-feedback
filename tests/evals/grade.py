@@ -360,14 +360,14 @@ def grade_removal_renumbers(run_dir, is_baseline=False):
                 "",
             )
         )
-    # Removed content should be gone
+    # Removed content should be gone from widget (lead-in may mention what was removed).
     removed_phrases = ["Three new features", "smart linking", "AI outline view", "mobile sync"]
-    leaked = [phrase for phrase in removed_phrases if phrase in haystack]
+    leaked = [phrase for phrase in removed_phrases if phrase in widget]
     asserts.append(
         assertion(
-            "removed_content_absent: removed unit's words don't appear in output",
+            "removed_content_absent: removed unit's words don't appear in widget",
             len(leaked) == 0,
-            f"leaked: {leaked}" if leaked else "",
+            f"leaked into widget: {leaked}" if leaked else "",
         )
     )
     # Remaining content should be present
@@ -417,12 +417,13 @@ def grade_removal_subtree(run_dir, is_baseline=False):
             )
         )
     removed_phrases = ["Cut deploy time", "Parallelize test suite", "Cache pnpm install"]
-    leaked = [phrase for phrase in removed_phrases if phrase in haystack]
+    # Check widget only - the assistant lead-in may legitimately mention what was removed.
+    leaked = [phrase for phrase in removed_phrases if phrase in widget]
     asserts.append(
         assertion(
-            "removed_subtree_absent: parent and sub-units all gone",
+            "removed_subtree_absent: removed parent and sub-units don't appear in widget",
             len(leaked) == 0,
-            f"leaked: {leaked}" if leaked else "",
+            f"leaked into widget: {leaked}" if leaked else "",
         )
     )
     remaining_phrases = ["Reduce p95 API latency", "Improve on-call experience", "Profile slow endpoints", "Audit recent pages"]
