@@ -1,23 +1,77 @@
 [
-  {"query": "Draft an RFC for moving our search index from Elasticsearch to OpenSearch. Cover motivation, current state, proposed approach, migration plan, and rollback. I'll want to give per-section feedback once you're done.", "should_trigger": true},
-  {"query": "ok i like that response let me give feedback on each part", "should_trigger": true},
-  {"query": "make that targetable", "should_trigger": true},
-  {"query": "Write a 2026 hiring plan for the data platform team — headcount by sub-team, levels mix (L4/L5/L6 split), sourcing channels we'll actually use, the interview loop changes I want to test, and budget asks. I want to iterate on each section.", "should_trigger": true},
-  {"query": "lemme refine each of those OKRs one by one - they're not quite right yet", "should_trigger": true},
-  {"query": "Put together a Q4 product roadmap covering platform stability work, the merchant onboarding flow rebuild, and the new analytics surface. Owners + rough sizing per item. I'll mark up each section before we share it with the exec team.", "should_trigger": true},
-  {"query": "I want to refine each role description in that resume draft you just wrote, one at a time", "should_trigger": true},
-  {"query": "the announcement you drafted - i want to iterate on each paragraph before we send it to the all-hands list", "should_trigger": true},
-  {"query": "write me a brand voice doc for Acme Notebook covering tone, vocabulary do's/don'ts, example phrases, and what we never say. then let me give per-section feedback so we can tighten it.", "should_trigger": true},
-  {"query": "Can you put that on-call runbook into a format where I can mark up each step? Some of them need rework.", "should_trigger": true},
+  {
+    "query": "Draft an RFC for moving our search index from Elasticsearch to OpenSearch. Cover motivation, current state, proposed approach, migration plan, and rollback. I'll want to give per-section feedback once you're done.",
+    "should_trigger": true
+  },
+  { "query": "ok i like that response let me give feedback on each part", "should_trigger": true },
+  { "query": "make that targetable", "should_trigger": true },
+  {
+    "query": "Write a 2026 hiring plan for the data platform team — headcount by sub-team, levels mix (L4/L5/L6 split), sourcing channels we'll actually use, the interview loop changes I want to test, and budget asks. I want to iterate on each section.",
+    "should_trigger": true
+  },
+  {
+    "query": "lemme refine each of those OKRs one by one - they're not quite right yet",
+    "should_trigger": true
+  },
+  {
+    "query": "Put together a Q4 product roadmap covering platform stability work, the merchant onboarding flow rebuild, and the new analytics surface. Owners + rough sizing per item. I'll mark up each section before we share it with the exec team.",
+    "should_trigger": true
+  },
+  {
+    "query": "I want to refine each role description in that resume draft you just wrote, one at a time",
+    "should_trigger": true
+  },
+  {
+    "query": "the announcement you drafted - i want to iterate on each paragraph before we send it to the all-hands list",
+    "should_trigger": true
+  },
+  {
+    "query": "write me a brand voice doc for Acme Notebook covering tone, vocabulary do's/don'ts, example phrases, and what we never say. then let me give per-section feedback so we can tighten it.",
+    "should_trigger": true
+  },
+  {
+    "query": "Can you put that on-call runbook into a format where I can mark up each step? Some of them need rework.",
+    "should_trigger": true
+  },
 
-  {"query": "fix the second bullet to say 'within 24 hours' instead of 'within a day' - that's the only change", "should_trigger": false},
-  {"query": "Draft an RFC for moving our search index from Elasticsearch to OpenSearch. Cover motivation, current state, proposed approach, migration plan, and rollback.", "should_trigger": false},
-  {"query": "Write a Python script that migrates users from AWS Cognito to Auth0 in batches of 1000, with a --dry-run flag and a checkpoint file so we can resume if it crashes mid-run.", "should_trigger": false},
-  {"query": "Give me a 2-paragraph summary of what bitemporal data modeling is and when you'd actually reach for it", "should_trigger": false},
-  {"query": "This test keeps flaking in CI - I want to iterate on it until it's deterministic. Can you walk through what could cause the non-determinism? ```python\ndef test_user_signup():\n    user = create_user('test@example.com')\n    assert user.id == 1\n```", "should_trigger": false},
-  {"query": "Build me a comparison table across these four object storage options: S3, R2, GCS, B2. Columns I care about: per-GB price, egress cost, S3 API compatibility, region availability, and presigned URL TTL limits.", "should_trigger": false},
-  {"query": "I'm trying to pick between Auth0 and Clerk for a new B2B SaaS. Want to brainstorm the trade-offs with me?", "should_trigger": false},
-  {"query": "in that Q3 plan you wrote earlier, the second bullet under 'on-call' - just delete it, we're not doing that one this quarter", "should_trigger": false},
-  {"query": "Can you give me feedback on this paragraph? 'Acme Notebook is the best notebook for thinking through hard problems.'", "should_trigger": false},
-  {"query": "Refactor this function to be more readable - the nested ternaries are hard to follow. ```ts\nconst tier = user.plan === 'pro' ? (user.seats > 10 ? 'enterprise' : 'pro-large') : user.seats > 3 ? 'starter-team' : 'starter';\n```", "should_trigger": false}
+  {
+    "query": "fix the second bullet to say 'within 24 hours' instead of 'within a day' - that's the only change",
+    "should_trigger": false
+  },
+  {
+    "query": "Draft an RFC for moving our search index from Elasticsearch to OpenSearch. Cover motivation, current state, proposed approach, migration plan, and rollback.",
+    "should_trigger": false
+  },
+  {
+    "query": "Write a Python script that migrates users from AWS Cognito to Auth0 in batches of 1000, with a --dry-run flag and a checkpoint file so we can resume if it crashes mid-run.",
+    "should_trigger": false
+  },
+  {
+    "query": "Give me a 2-paragraph summary of what bitemporal data modeling is and when you'd actually reach for it",
+    "should_trigger": false
+  },
+  {
+    "query": "This test keeps flaking in CI - I want to iterate on it until it's deterministic. Can you walk through what could cause the non-determinism? ```python\ndef test_user_signup():\n    user = create_user('test@example.com')\n    assert user.id == 1\n```",
+    "should_trigger": false
+  },
+  {
+    "query": "Build me a comparison table across these four object storage options: S3, R2, GCS, B2. Columns I care about: per-GB price, egress cost, S3 API compatibility, region availability, and presigned URL TTL limits.",
+    "should_trigger": false
+  },
+  {
+    "query": "I'm trying to pick between Auth0 and Clerk for a new B2B SaaS. Want to brainstorm the trade-offs with me?",
+    "should_trigger": false
+  },
+  {
+    "query": "in that Q3 plan you wrote earlier, the second bullet under 'on-call' - just delete it, we're not doing that one this quarter",
+    "should_trigger": false
+  },
+  {
+    "query": "Can you give me feedback on this paragraph? 'Acme Notebook is the best notebook for thinking through hard problems.'",
+    "should_trigger": false
+  },
+  {
+    "query": "Refactor this function to be more readable - the nested ternaries are hard to follow. ```ts\nconst tier = user.plan === 'pro' ? (user.seats > 10 ? 'enterprise' : 'pro-large') : user.seats > 3 ? 'starter-team' : 'starter';\n```",
+    "should_trigger": false
+  }
 ]

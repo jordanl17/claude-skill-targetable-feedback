@@ -235,7 +235,9 @@ interface EvalsJson {
 }
 
 function widgetWithFallbacks(widgetPath: string): string {
-  const body = existsSync(widgetPath) ? readFileSync(widgetPath, 'utf8') : '<!-- widget.html missing -->';
+  const body = existsSync(widgetPath)
+    ? readFileSync(widgetPath, 'utf8')
+    : '<!-- widget.html missing -->';
   return `<!DOCTYPE html>
 <html><head><meta charset="utf-8"><style>${DESIGN_FALLBACKS}</style></head>
 <body>${body}</body></html>`;
@@ -278,7 +280,10 @@ function renderGrading(grading: Grading | Record<string, never>): string {
 
 function slugToLabel(slug: string): string {
   // Python's str.title() uppercases the first letter of each word and lowercases the rest.
-  return slug.replaceAll('-', ' ').replaceAll('_', ' ').split(' ')
+  return slug
+    .replaceAll('-', ' ')
+    .replaceAll('_', ' ')
+    .split(' ')
     .map((word) => (word.length === 0 ? '' : word[0]!.toUpperCase() + word.slice(1).toLowerCase()))
     .join(' ');
 }
@@ -370,7 +375,9 @@ function loadRunArtifacts(runDir: string): RunArtifacts {
     widgetPath,
     response: existsSync(responsePath) ? readFileSync(responsePath, 'utf8') : '',
     meta: existsSync(metaPath) ? (JSON.parse(readFileSync(metaPath, 'utf8')) as Meta) : {},
-    grading: existsSync(gradingPath) ? (JSON.parse(readFileSync(gradingPath, 'utf8')) as Grading) : {},
+    grading: existsSync(gradingPath)
+      ? (JSON.parse(readFileSync(gradingPath, 'utf8')) as Grading)
+      : {},
   };
 }
 
@@ -387,7 +394,9 @@ function main(): void {
   }
 
   const evalsConfig = JSON.parse(readFileSync(EVALS_JSON_PATH, 'utf8')) as EvalsJson;
-  const promptsById = Object.fromEntries(evalsConfig.evals.map((entry) => [entry.id, entry.prompt]));
+  const promptsById = Object.fromEntries(
+    evalsConfig.evals.map((entry) => [entry.id, entry.prompt]),
+  );
 
   const sections = readdirSync(iterationDir, { withFileTypes: true })
     .filter((entry) => entry.isDirectory() && entry.name.startsWith('eval-'))

@@ -3,3 +3,4 @@ targetable-feedback-workspace/
 node_modules/
 .claude/
 dist/
+.husky/_/

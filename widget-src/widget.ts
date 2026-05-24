@@ -196,7 +196,9 @@ const formatChange = (unitId: string, body: string): string[] => {
 
 applyButton.addEventListener('click', () => {
   if (guidance.size === 0 && removed.size === 0) return;
-  const guidanceLines = Array.from(guidance).flatMap(([unitId, text]) => formatChange(unitId, text));
+  const guidanceLines = Array.from(guidance).flatMap(([unitId, text]) =>
+    formatChange(unitId, text),
+  );
   const removeLines = Array.from(removed).flatMap((unitId) => formatChange(unitId, 'REMOVE'));
   const payload = [
     'Revise the draft based on this per-unit guidance:',

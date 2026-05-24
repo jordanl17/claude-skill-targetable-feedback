@@ -25,7 +25,7 @@ Three changes pending. One apply button. No location-describing required.
   <img src="demo/comparison.png" alt="Side-by-side comparison. Left: a user describing in prose which paragraphs to change. Right: the widget with feedback attached directly to specific sections via inline textareas and a remove checkbox." width="900">
 </p>
 
-Today, iterating on a multi-section draft means typing things like *"in the second paragraph - actually maybe the third, I can't remember - lean more into the productivity angle, and drop the last bullet."* Then Claude has to map your prose onto its own structure and hope it landed on the right unit. Both sides do double work and ambiguity creeps in fast.
+Today, iterating on a multi-section draft means typing things like _"in the second paragraph - actually maybe the third, I can't remember - lean more into the productivity angle, and drop the last bullet."_ Then Claude has to map your prose onto its own structure and hope it landed on the right unit. Both sides do double work and ambiguity creeps in fast.
 
 This skill removes the location-describing step. Claude already knows the structure of what it wrote - surfacing that as an addressable widget means your guidance attaches directly to the unit it's about. No prose-mapping, no ambiguity, one revision pass.
 

@@ -69,6 +69,7 @@ The preview page renders each widget visually with claude.ai design-system fallb
 ## Iteration 1 baseline
 
 `targetable-feedback-workspace/iteration-1` is gitignored but iteration 1 of evals (run at skill v0.3.0) scored:
+
 - with_skill: 47/47 assertions passed (100%)
 - without_skill: 15/27 assertions passed (56%)
 - delta: +44 percentage points

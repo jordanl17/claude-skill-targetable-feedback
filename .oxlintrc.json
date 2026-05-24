@@ -1,0 +1,22 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oxc-project/oxc/main/npm/oxlint/configuration_schema.json",
+  "categories": {
+    "correctness": "error",
+    "perf": "warn",
+    "restriction": "off",
+    "style": "off",
+    "suspicious": "warn"
+  },
+  "rules": {
+    "no-unused-vars": "warn",
+    "eqeqeq": "error",
+    "no-debugger": "error",
+    "no-console": "off"
+  },
+  "ignorePatterns": [
+    "node_modules/",
+    "targetable-feedback/assets/widget-bundled.html",
+    "targetable-feedback-workspace/",
+    "dist/"
+  ]
+}

@@ -10,7 +10,12 @@ function cycle(values: readonly string[]): () => string {
 }
 
 function fillSlots(template: string): string {
-  const nextUnitContent = cycle(['First unit content.', 'Second unit content.', 'Third unit content.', 'Fourth unit content.']);
+  const nextUnitContent = cycle([
+    'First unit content.',
+    'Second unit content.',
+    'Third unit content.',
+    'Fourth unit content.',
+  ]);
   const nextUnitSnippet = cycle(['first-snip', 'second-snip', 'third-snip', 'fourth-snip']);
   const nextUnitId = cycle(['1', '2', '3', '4', '5', '6', '7', '8']);
 
@@ -40,7 +45,8 @@ function renderBundle(): { sendPrompt: ReturnType<typeof vi.fn> } {
   const filled = fillSlots(readFileSync(bundlePath, 'utf8'));
   const scriptMatch = /<script[^>]*>([\s\S]*?)<\/script>/.exec(filled);
   if (!scriptMatch) throw new Error('No <script> tag found in bundle');
-  const htmlWithoutScript = filled.slice(0, scriptMatch.index) + filled.slice(scriptMatch.index + scriptMatch[0].length);
+  const htmlWithoutScript =
+    filled.slice(0, scriptMatch.index) + filled.slice(scriptMatch.index + scriptMatch[0].length);
   const scriptSource = scriptMatch[1]!;
 
   const sendPrompt = vi.fn();

@@ -72,7 +72,9 @@ function gradeTriggerSingleEditSkips(runDir: string, isBaseline: boolean): Asser
   const { widget, response, meta } = loadOutputs(runDir);
   const expectations: Assertion[] = [];
   if (!isBaseline) {
-    expectations.push(activatedAssertion(meta, false, 'activated_meta_false: meta.json has activated=false'));
+    expectations.push(
+      activatedAssertion(meta, false, 'activated_meta_false: meta.json has activated=false'),
+    );
   }
   expectations.push(
     assertion(
@@ -98,7 +100,9 @@ function gradeTriggerCodeTaskSkips(runDir: string, isBaseline: boolean): Asserti
   const { widget, response, meta } = loadOutputs(runDir);
   const expectations: Assertion[] = [];
   if (!isBaseline) {
-    expectations.push(activatedAssertion(meta, false, 'activated_meta_false: meta.json has activated=false'));
+    expectations.push(
+      activatedAssertion(meta, false, 'activated_meta_false: meta.json has activated=false'),
+    );
   }
   expectations.push(
     assertion(
@@ -171,7 +175,12 @@ const AWKWARD_GOALS = [
 ];
 
 // Phrases that would indicate the model "improved" the awkward prose rather than preserving it.
-const IMPROVEMENT_SMELL_WORDS = ['increase revenue', 'customer satisfaction', 'team satisfaction', 'track revenue'];
+const IMPROVEMENT_SMELL_WORDS = [
+  'increase revenue',
+  'customer satisfaction',
+  'team satisfaction',
+  'track revenue',
+];
 
 function gradeVerbatimAwkwardPhrasing(runDir: string, isBaseline: boolean): Assertion[] {
   const { widget, response, meta } = loadOutputs(runDir);
@@ -263,11 +272,7 @@ function gradeSubunits(runDir: string, isBaseline: boolean): Assertion[] {
   SUBUNIT_PARENT_TEXTS.forEach((parentText) => {
     const found = haystack.includes(parentText);
     expectations.push(
-      assertion(
-        `parent_present: '${parentText.slice(0, 40)}...'`,
-        found,
-        found ? '' : 'missing',
-      ),
+      assertion(`parent_present: '${parentText.slice(0, 40)}...'`, found, found ? '' : 'missing'),
     );
   });
   const missingChildren = SUBUNIT_CHILD_TEXTS.filter((text) => !haystack.includes(text));
@@ -283,7 +288,12 @@ function gradeSubunits(runDir: string, isBaseline: boolean): Assertion[] {
   return expectations;
 }
 
-const REMOVAL_REMOVED_PHRASES = ['Three new features', 'smart linking', 'AI outline view', 'mobile sync'];
+const REMOVAL_REMOVED_PHRASES = [
+  'Three new features',
+  'smart linking',
+  'AI outline view',
+  'mobile sync',
+];
 const REMOVAL_REMAINING_PHRASES = [
   'Acme Notebook 2026 is our most ambitious release yet',
   'Built for the modern knowledge worker',
@@ -308,11 +318,7 @@ function gradeRemovalRenumbers(runDir: string, isBaseline: boolean): Assertion[]
         arraysEqual(dataIds, ['1', '2', '3', '4']),
         `data-ids=${formatStringArray(dataIds)}`,
       ),
-      assertion(
-        'rev_pill_present: widget has rev-pill span',
-        widget.includes('rev-pill'),
-        '',
-      ),
+      assertion('rev_pill_present: widget has rev-pill span', widget.includes('rev-pill'), ''),
     );
   }
   // Removed unit content must not appear in the widget (lead-in may legitimately mention what was removed).
@@ -335,7 +341,11 @@ function gradeRemovalRenumbers(runDir: string, isBaseline: boolean): Assertion[]
   return expectations;
 }
 
-const REMOVAL_SUBTREE_REMOVED_PHRASES = ['Cut deploy time', 'Parallelize test suite', 'Cache pnpm install'];
+const REMOVAL_SUBTREE_REMOVED_PHRASES = [
+  'Cut deploy time',
+  'Parallelize test suite',
+  'Cache pnpm install',
+];
 const REMOVAL_SUBTREE_REMAINING_PHRASES = [
   'Reduce p95 API latency',
   'Improve on-call experience',
@@ -348,7 +358,9 @@ function gradeRemovalSubtree(runDir: string, isBaseline: boolean): Assertion[] {
   const haystack = `${widget}\n${response}`;
   const expectations: Assertion[] = [];
   if (!isBaseline) {
-    const subIds = extractDataIds(widget).filter((dataId) => dataId.includes('.')).sort();
+    const subIds = extractDataIds(widget)
+      .filter((dataId) => dataId.includes('.'))
+      .sort();
     expectations.push(
       assertion(
         'two_top_level_parents: exactly 2 top-level units',
@@ -417,7 +429,9 @@ function gradeMixedShapes(runDir: string, isBaseline: boolean): Assertion[] {
   if (!isBaseline) {
     const hasOpenRisksH3 = /<h3[^>]*>\s*Open risks\s*<\/h3>/.test(widget);
     const hasLockedH3 = /<h3[^>]*>\s*What['’]s locked\s*<\/h3>/.test(widget);
-    const unitTextMatches = Array.from(widget.matchAll(/<div\s+class="[^"]*\bunit\b[^"]*"[^>]*>([^<]+)/g));
+    const unitTextMatches = Array.from(
+      widget.matchAll(/<div\s+class="[^"]*\bunit\b[^"]*"[^>]*>([^<]+)/g),
+    );
     const unitText = unitTextMatches.map((match) => match[1]).join(' ');
     const headingsLeakedIntoUnits =
       unitText.includes('Open risks') ||
@@ -622,7 +636,10 @@ function formatPercent(rate: number): string {
 // Python's json.dump writes float values like 1.0 / 0.0 with the trailing .0 preserved.
 // JS JSON.stringify strips it (1.0 -> "1"). Post-process pass_rate specifically to
 // restore the Python float formatting so grading.json stays byte-identical.
-function stringifyWithFloatPassRate(value: { expectations: Assertion[]; summary: ReturnType<typeof summarize> }): string {
+function stringifyWithFloatPassRate(value: {
+  expectations: Assertion[];
+  summary: ReturnType<typeof summarize>;
+}): string {
   const json = JSON.stringify(value, null, 2);
   return json.replace(/"pass_rate": (-?\d+)(?=[,\n}])/g, '"pass_rate": $1.0');
 }

@@ -2,12 +2,12 @@
 
 Four test surfaces, in order of increasing effort. Pick the right one for the change you're making.
 
-| Surface | What it catches | When to run | Time |
-|---|---|---|---|
-| 1. Vitest unit + integration suite | Widget runtime bugs (script init, click/input/change handlers, payload shape), bundle integrity (`type="module"` preservation, slot tokens, size budget) | After editing `widget-src/widget.ts`, `vite.config.ts`, or any build path. Runs automatically on every PR. | ~1 sec |
-| 2. Manual trigger walkthrough | Whether SKILL.md description fires/skips correctly in real CC | After editing the SKILL.md `description:` frontmatter | ~5 min |
-| 3. Programmatic eval suite | Verbatim preservation, sub-unit IDs, removal renumbering, plus trigger precision | After editing SKILL.md body, parsing rules, or anything in `widget-src/` | ~15 min |
-| 4. Description optimization | Trigger-rate tuning across many phrasings | Currently broken for this skill - see below | n/a |
+| Surface                            | What it catches                                                                                                                                          | When to run                                                                                                | Time    |
+| ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | ------- |
+| 1. Vitest unit + integration suite | Widget runtime bugs (script init, click/input/change handlers, payload shape), bundle integrity (`type="module"` preservation, slot tokens, size budget) | After editing `widget-src/widget.ts`, `vite.config.ts`, or any build path. Runs automatically on every PR. | ~1 sec  |
+| 2. Manual trigger walkthrough      | Whether SKILL.md description fires/skips correctly in real CC                                                                                            | After editing the SKILL.md `description:` frontmatter                                                      | ~5 min  |
+| 3. Programmatic eval suite         | Verbatim preservation, sub-unit IDs, removal renumbering, plus trigger precision                                                                         | After editing SKILL.md body, parsing rules, or anything in `widget-src/`                                   | ~15 min |
+| 4. Description optimization        | Trigger-rate tuning across many phrasings                                                                                                                | Currently broken for this skill - see below                                                                | n/a     |
 
 ## Surface 1: Vitest unit + integration suite
 
@@ -81,6 +81,7 @@ Anthropic's `skill-creator` ships a `run_loop.py` description tuner. We tried it
 **Root cause:** the optimizer uses `claude -p` (headless CLI), which doesn't expose `visualize:show_widget`. The model rationally refuses to invoke a skill whose primary tool isn't available. So the harness fundamentally cannot measure trigger rate for this skill.
 
 If you want to re-attempt:
+
 1. Either modify `~/.claude/skills/skill-creator/scripts/run_eval.py` to inject a stub `show_widget` tool, or
 2. Use Surface 1 / Surface 2 as proxies for trigger precision.
 
@@ -89,6 +90,7 @@ The 20 trigger queries we drafted (`tests/evals/trigger-eval.json`) are kept aro
 ## Workspace hygiene
 
 `targetable-feedback-workspace/` is gitignored. It holds:
+
 - per-iteration eval results (`iteration-N/`)
 - snapshot copies of the skill (`skill-snapshot-iter-N/`)
 - the eval-preview.html that `build_preview.ts` writes

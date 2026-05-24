@@ -33,10 +33,10 @@ Three independent rendering modes. Choose per unit based on what helps the user 
 
 ### Top-level units
 
-| Mode | When to use | Markup |
-|------|-------------|--------|
-| **Plain** | Prose-like sections, OKRs, RFC items, brainstormed ideas, anything where a marker would just add visual noise. | `<div class="unit plain">{{CONTENT}}</div>` (no `<span class="num">`) |
-| **Numbered** | Items are ordered and the user might refer to them by number ("redo step 3"). Recipes, sequential instructions, ranked lists. | `<div class="unit"><span class="num">N</span>{{CONTENT}}</div>` |
+| Mode         | When to use                                                                                                                                                                                     | Markup                                                                       |
+| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| **Plain**    | Prose-like sections, OKRs, RFC items, brainstormed ideas, anything where a marker would just add visual noise.                                                                                  | `<div class="unit plain">{{CONTENT}}</div>` (no `<span class="num">`)        |
+| **Numbered** | Items are ordered and the user might refer to them by number ("redo step 3"). Recipes, sequential instructions, ranked lists.                                                                   | `<div class="unit"><span class="num">N</span>{{CONTENT}}</div>`              |
 | **Bulleted** | Source content was authored as a bullet list AND the bullets are part of how the user thinks about the items. Shopping lists, feature comparisons, checklists. Items aren't inherently ordered. | `<div class="unit plain bullet">{{CONTENT}}</div>` (no `<span class="num">`) |
 
 Numbers and bullets are **independent decisions**. Bullets do not imply numbers; numbers do not imply bullets. Combining them (`<div class="unit bullet"><span class="num">N</span>...</div>`) is also valid but rare - reserve it for content where both the order and the bullet-ness genuinely matter.

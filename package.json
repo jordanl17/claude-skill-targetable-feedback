@@ -14,13 +14,25 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "eval:grade": "vite-node tests/evals/grade.ts --",
-    "eval:preview": "vite-node tests/evals/build_preview.ts --"
+    "eval:preview": "vite-node tests/evals/build_preview.ts --",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "oxlint",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,js,html,css,json,md,yml,yaml}": "prettier --write",
+    "*.{ts,js}": "oxlint"
   },
   "devDependencies": {
     "@types/jsdom": "^21.1.0",
     "@types/node": "^20.0.0",
+    "husky": "^9.1.0",
     "jsdom": "^25.0.0",
     "lightningcss": "^1.32.0",
+    "lint-staged": "^15.2.0",
+    "oxlint": "^0.15.0",
+    "prettier": "^3.3.0",
     "terser": "^5.48.0",
     "typescript": "^5.4.0",
     "vite": "^8.0.14",
