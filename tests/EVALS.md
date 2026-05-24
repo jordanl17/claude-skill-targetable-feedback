@@ -45,10 +45,11 @@ The 9 scenarios in [`tests/evals/evals.json`](evals/evals.json) cover the four c
 The widget ships as `targetable-feedback/assets/widget-bundled.html` (a single file with CSS and JS inlined). The split sources live outside the skill folder at `widget-src/` (`widget.html`, `widget.css`, `widget.js`) so they don't bloat the distributed zip. After editing any source, regenerate the bundle:
 
 ```bash
-python3 scripts/assemble.py
+pnpm install   # first time only
+pnpm build
 ```
 
-`scripts/build-zip.sh` runs this automatically before zipping locally, and the release workflow runs it before producing the GitHub release zip - so the released artifact always reflects the latest source.
+`pnpm build` runs `scripts/assemble.ts` via tsx, which minifies the CSS with lightningcss and the JS with terser before slot substitution. `scripts/build-zip.sh` invokes the build automatically before zipping locally, and the release workflow runs it before producing the GitHub release zip - so the released artifact always reflects the latest source.
 
 ### Iteration 1 baseline (skill v0.3.0)
 

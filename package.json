@@ -1,0 +1,21 @@
+{
+  "name": "claude-skill-targetable-feedback",
+  "private": true,
+  "version": "0.4.2",
+  "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "build": "tsx scripts/assemble.ts",
+    "build:zip": "./scripts/build-zip.sh"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "lightningcss": "^1.32.0",
+    "terser": "^5.48.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.4.0"
+  },
+  "packageManager": "pnpm@10.10.0"
+}

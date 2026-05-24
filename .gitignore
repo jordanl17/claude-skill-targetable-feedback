@@ -1,2 +1,4 @@
 targetable-feedback*.zip
 targetable-feedback-workspace/
+node_modules/
+.claude/

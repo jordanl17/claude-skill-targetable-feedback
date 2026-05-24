@@ -8,8 +8,9 @@ This repo is the `targetable-feedback` Claude skill - a `SKILL.md` + interactive
 - `widget-src/` - editable widget sources (`widget.html`, `widget.css`, `widget.js`) - NOT shipped, only inputs to the bundler
 - `tests/` - testing docs and all eval scaffolding (manual checklists at the top, programmatic suite under `tests/evals/`)
 - `demo/` - the animated GIF and static comparison shown in the README
-- `scripts/assemble.py` - bundles `widget-src/*` into `targetable-feedback/assets/widget-bundled.html`
-- `scripts/build-zip.sh` - runs assemble.py then zips the `targetable-feedback/` folder
+- `scripts/assemble.ts` - bundles `widget-src/*` into `targetable-feedback/assets/widget-bundled.html` using terser + lightningcss. Run with `pnpm build`.
+- `scripts/build-zip.sh` - runs `pnpm build` then zips the `targetable-feedback/` folder
+- `package.json` / `tsconfig.json` / `pnpm-lock.yaml` - Node toolchain for the bundler (requires Node 20+ and pnpm 10+)
 
 ## Before changing the skill, read the testing docs
 
