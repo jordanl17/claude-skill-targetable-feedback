@@ -59,8 +59,8 @@ Return a one-line summary.
 ## After all 18 complete
 
 ```bash
-python3 tests/evals/grade.py targetable-feedback-workspace/iteration-2
-python3 tests/evals/build_preview.py targetable-feedback-workspace/iteration-2
+pnpm eval:grade targetable-feedback-workspace/iteration-2
+pnpm eval:preview targetable-feedback-workspace/iteration-2
 open targetable-feedback-workspace/iteration-2/eval-preview.html
 ```
 

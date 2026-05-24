@@ -12,18 +12,15 @@ const requireElement = <ElementType extends Element>(selector: string): ElementT
   return found as ElementType;
 };
 
-const requireUnitId = (unit: UnitElement): string => {
-  const unitId = unit.dataset.id;
-  if (!unitId) throw new Error('Unit element missing data-id');
-  return unitId;
+const requireDataset = (unit: UnitElement, key: 'id' | 'snippet'): string => {
+  const value = unit.dataset[key];
+  if (!value) throw new Error(`Unit element missing data-${key}`);
+  return value;
 };
 
-const requireUnitSnippet = (unit: UnitElement): string => {
-  const snippet = unit.dataset.snippet;
-  if (!snippet) throw new Error('Unit element missing data-snippet');
-  return snippet;
-};
-
+// Units can nest (sub-units), so unit.querySelectorAll('.guidance-input')
+// returns inputs belonging to nested children too. Filter to only the input
+// whose nearest `.unit` ancestor is this unit.
 const ownDescendant = <ElementType extends Element>(
   unit: UnitElement,
   selector: string,
@@ -31,12 +28,6 @@ const ownDescendant = <ElementType extends Element>(
   Array.from(unit.querySelectorAll<ElementType>(selector)).find(
     (element) => element.closest('.unit') === unit,
   );
-
-const ownInput = (unit: UnitElement): GuidanceInput | undefined =>
-  ownDescendant<GuidanceInput>(unit, '.guidance-input');
-
-const ownRemoveCheckbox = (unit: UnitElement): HTMLInputElement | undefined =>
-  ownDescendant<HTMLInputElement>(unit, '.remove-checkbox');
 
 const autosize = (textarea: GuidanceInput): void => {
   textarea.style.height = 'auto';
@@ -60,8 +51,12 @@ const updateBar = (): void => {
 document.querySelectorAll<HTMLDivElement>('.guidance-wrap').forEach((wrap) => {
   const label = document.createElement('label');
   label.className = 'remove-toggle';
-  label.innerHTML =
-    '<input type="checkbox" class="remove-checkbox"><span>Remove this section in the next draft</span>';
+  const checkbox = document.createElement('input');
+  checkbox.type = 'checkbox';
+  checkbox.className = 'remove-checkbox';
+  const text = document.createElement('span');
+  text.textContent = 'Remove this section in the next draft';
+  label.append(checkbox, text);
   wrap.appendChild(label);
 });
 
@@ -83,7 +78,7 @@ document.querySelectorAll<UnitElement>('.unit').forEach((unit) => {
       }
     });
     unit.classList.add('open');
-    const input = ownInput(unit);
+    const input = ownDescendant<GuidanceInput>(unit, '.guidance-input');
     setTimeout(() => {
       if (input && !input.disabled) {
         input.focus();
@@ -100,7 +95,7 @@ document.querySelectorAll<GuidanceInput>('.guidance-input').forEach((input) => {
     autosize(input);
     const unit = input.closest<UnitElement>('.unit');
     if (!unit) return;
-    const unitId = requireUnitId(unit);
+    const unitId = requireDataset(unit, 'id');
     const trimmed = input.value.trim();
     if (trimmed) {
       guidance.set(unitId, input.value);
@@ -137,12 +132,12 @@ document.querySelectorAll<HTMLButtonElement>('.clear-x').forEach((button) => {
     event.stopPropagation();
     const unit = button.closest<UnitElement>('.unit');
     if (!unit) return;
-    const input = ownInput(unit);
+    const input = ownDescendant<GuidanceInput>(unit, '.guidance-input');
     if (input) {
       input.value = '';
       autosize(input);
     }
-    guidance.delete(requireUnitId(unit));
+    guidance.delete(requireDataset(unit, 'id'));
     unit.classList.remove('marked', 'open');
     updateBar();
   });
@@ -154,8 +149,8 @@ document.querySelectorAll<HTMLInputElement>('.remove-checkbox').forEach((checkbo
   checkbox.addEventListener('change', () => {
     const unit = checkbox.closest<UnitElement>('.unit');
     if (!unit) return;
-    const unitId = requireUnitId(unit);
-    const input = ownInput(unit);
+    const unitId = requireDataset(unit, 'id');
+    const input = ownDescendant<GuidanceInput>(unit, '.guidance-input');
     unit.classList.add('open');
     if (checkbox.checked) {
       removed.add(unitId);
@@ -181,34 +176,35 @@ clearAllButton.addEventListener('click', () => {
   removed.clear();
   document.querySelectorAll<UnitElement>('.unit').forEach((unit) => {
     unit.classList.remove('marked', 'open', 'removing');
-    const input = ownInput(unit);
+    const input = ownDescendant<GuidanceInput>(unit, '.guidance-input');
     if (input) {
       input.value = '';
       input.disabled = false;
       autosize(input);
     }
-    const checkbox = ownRemoveCheckbox(unit);
+    const checkbox = ownDescendant<HTMLInputElement>(unit, '.remove-checkbox');
     if (checkbox) checkbox.checked = false;
   });
   updateBar();
 });
 
+const formatChange = (unitId: string, body: string): string[] => {
+  const unit = document.querySelector<UnitElement>(`.unit[data-id="${unitId}"]`);
+  if (!unit) return [];
+  return [`Unit ${unitId} ("${requireDataset(unit, 'snippet')}"): ${body}`];
+};
+
 applyButton.addEventListener('click', () => {
   if (guidance.size === 0 && removed.size === 0) return;
-  const lines = ['Revise the draft based on this per-unit guidance:', ''];
-  guidance.forEach((text, unitId) => {
-    const unit = document.querySelector<UnitElement>(`.unit[data-id="${unitId}"]`);
-    if (!unit) return;
-    lines.push(`Unit ${unitId} ("${requireUnitSnippet(unit)}"): ${text}`);
-  });
-  removed.forEach((unitId) => {
-    const unit = document.querySelector<UnitElement>(`.unit[data-id="${unitId}"]`);
-    if (!unit) return;
-    lines.push(`Unit ${unitId} ("${requireUnitSnippet(unit)}"): REMOVE`);
-  });
-  lines.push('');
-  lines.push(
+  const guidanceLines = Array.from(guidance).flatMap(([unitId, text]) => formatChange(unitId, text));
+  const removeLines = Array.from(removed).flatMap((unitId) => formatChange(unitId, 'REMOVE'));
+  const payload = [
+    'Revise the draft based on this per-unit guidance:',
+    '',
+    ...guidanceLines,
+    ...removeLines,
+    '',
     'Apply only these changes. Leave unmarked units exactly as they are. Remove the units marked REMOVE entirely from the next draft and renumber remaining units to be contiguous. Return the revised draft so I can iterate.',
-  );
-  sendPrompt(lines.join('\n'));
+  ].join('\n');
+  sendPrompt(payload);
 });

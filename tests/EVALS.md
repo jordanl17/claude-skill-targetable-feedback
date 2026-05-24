@@ -34,12 +34,12 @@ Scaffold lives in [`tests/evals/`](evals/). Each iteration:
 2. **Read [`tests/evals/orchestrator.md`](evals/orchestrator.md).** It has the setup commands and the two prompt templates (with_skill + baseline). A Claude Code agent spawns 18 background subagents in one Agent-tool batch and the system notifies on each completion.
 3. **Grade** when all 16 are done:
    ```bash
-   python3 tests/evals/grade.py targetable-feedback-workspace/iteration-N
+   pnpm eval:grade targetable-feedback-workspace/iteration-N
    ```
    Writes `grading.json` per run with `{expectations: [...], summary: {pass_rate, ...}}`. Each assertion is programmatic (regex/string match against the widget HTML or response text).
 4. **Build a visual review:**
    ```bash
-   python3 tests/evals/build_preview.py targetable-feedback-workspace/iteration-N
+   pnpm eval:preview targetable-feedback-workspace/iteration-N
    open targetable-feedback-workspace/iteration-N/eval-preview.html
    ```
    Shows each widget rendered inline with claude.ai design-system fallbacks, alongside the grading. Per-scenario feedback textareas auto-save to localStorage; "Copy feedback JSON" sticky button exports the payload.
@@ -91,6 +91,6 @@ The 20 trigger queries we drafted (`tests/evals/trigger-eval.json`) are kept aro
 `targetable-feedback-workspace/` is gitignored. It holds:
 - per-iteration eval results (`iteration-N/`)
 - snapshot copies of the skill (`skill-snapshot-iter-N/`)
-- the eval-preview.html that `build_preview.py` writes
+- the eval-preview.html that `build_preview.ts` writes
 
 Nothing in this directory needs to be committed. The scaffolding in `tests/evals/` is what's reproducible.
