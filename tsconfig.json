@@ -1,13 +1,20 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "exactOptionalPropertyTypes": true,
     "skipLibCheck": true,
-    "resolveJsonModule": true,
+    "noEmit": true,
+    "isolatedModules": true,
     "esModuleInterop": true,
-    "noEmit": true
+    "resolveJsonModule": true,
+    "verbatimModuleSyntax": false
   },
-  "include": ["scripts/**/*.ts"]
+  "include": ["widget-src/**/*.ts", "widget-src/**/*.d.ts", "vite.config.ts"]
 }

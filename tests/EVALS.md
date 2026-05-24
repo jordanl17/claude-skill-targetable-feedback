@@ -42,14 +42,17 @@ The 9 scenarios in [`tests/evals/evals.json`](evals/evals.json) cover the four c
 
 ### Editing the widget sources
 
-The widget ships as `targetable-feedback/assets/widget-bundled.html` (a single file with CSS and JS inlined). The split sources live outside the skill folder at `widget-src/` (`widget.html`, `widget.css`, `widget.js`) so they don't bloat the distributed zip. After editing any source, regenerate the bundle:
+The widget ships as `targetable-feedback/assets/widget-bundled.html` (a single file with CSS and JS inlined). The split sources live outside the skill folder at `widget-src/` (`widget.html`, `widget.css`, `widget.ts`, `globals.d.ts`) so they don't bloat the distributed zip. After editing any source, regenerate the bundle:
 
 ```bash
-pnpm install   # first time only
+pnpm install      # first time only
+pnpm type-check   # optional, recommended after TS edits
 pnpm build
 ```
 
-`pnpm build` runs `scripts/assemble.ts` via tsx, which minifies the CSS with lightningcss and the JS with terser before slot substitution. `scripts/build-zip.sh` invokes the build automatically before zipping locally, and the release workflow runs it before producing the GitHub release zip - so the released artifact always reflects the latest source.
+`pnpm build` runs Vite (`vite.config.ts`), which transpiles the TypeScript via esbuild, minifies the CSS with lightningcss and the JS with terser, then inlines everything into a single HTML file via `vite-plugin-singlefile`. `scripts/build-zip.sh` invokes the build automatically before zipping locally, and the release workflow runs it before producing the GitHub release zip - so the released artifact always reflects the latest source.
+
+You can also run `pnpm dev` to open the widget in a local browser for visual smoke testing (note: the `Apply` button calls `sendPrompt`, which is only defined inside the claude.ai host - it will error in local dev).
 
 ### Iteration 1 baseline (skill v0.3.0)
 
