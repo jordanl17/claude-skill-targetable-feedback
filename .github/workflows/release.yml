@@ -39,6 +39,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Build widget bundle
         run: pnpm build
+      - name: Verify bundle integrity and runtime behavior
+        run: pnpm test
       - name: Build ZIPs
         run: |
           zip -r targetable-feedback.zip targetable-feedback

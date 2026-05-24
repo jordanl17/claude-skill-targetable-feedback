@@ -16,5 +16,11 @@
     "resolveJsonModule": true,
     "verbatimModuleSyntax": false
   },
-  "include": ["widget-src/**/*.ts", "widget-src/**/*.d.ts", "vite.config.ts"]
+  "include": [
+    "widget-src/**/*.ts",
+    "widget-src/**/*.d.ts",
+    "vite.config.ts",
+    "vitest.config.ts",
+    "tests/widget/**/*.ts"
+  ]
 }

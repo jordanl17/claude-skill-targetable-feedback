@@ -1,20 +1,32 @@
 # Testing and eval strategy
 
-Three test surfaces, in order of increasing effort. Pick the right one for the change you're making.
+Four test surfaces, in order of increasing effort. Pick the right one for the change you're making.
 
 | Surface | What it catches | When to run | Time |
 |---|---|---|---|
-| 1. Manual trigger walkthrough | Whether SKILL.md description fires/skips correctly in real CC | After editing the SKILL.md `description:` frontmatter | ~5 min |
-| 2. Programmatic eval suite | Verbatim preservation, sub-unit IDs, removal renumbering, plus trigger precision | After editing SKILL.md body, parsing rules, or anything in `widget-src/` | ~15 min |
-| 3. Description optimization | Trigger-rate tuning across many phrasings | Currently broken for this skill - see below | n/a |
+| 1. Vitest unit + integration suite | Widget runtime bugs (script init, click/input/change handlers, payload shape), bundle integrity (`type="module"` preservation, slot tokens, size budget) | After editing `widget-src/widget.ts`, `vite.config.ts`, or any build path. Runs automatically on every PR. | ~1 sec |
+| 2. Manual trigger walkthrough | Whether SKILL.md description fires/skips correctly in real CC | After editing the SKILL.md `description:` frontmatter | ~5 min |
+| 3. Programmatic eval suite | Verbatim preservation, sub-unit IDs, removal renumbering, plus trigger precision | After editing SKILL.md body, parsing rules, or anything in `widget-src/` | ~15 min |
+| 4. Description optimization | Trigger-rate tuning across many phrasings | Currently broken for this skill - see below | n/a |
 
-## Surface 1: Manual trigger walkthrough
+## Surface 1: Vitest unit + integration suite
+
+Run with `pnpm test`. Two files in [`tests/widget/`](widget/):
+
+- [`bundle.test.ts`](widget/bundle.test.ts) - static checks against the built `widget-bundled.html`: the inlined `<script>` declares `type="module"` (otherwise it runs before the DOM is ready and breaks all event listeners), runtime slot tokens like `{{DOCUMENT_TITLE}}` are preserved, build-time tokens are substituted, critical string literals survive terser, bundle stays under 16 KB.
+- [`widget.test.ts`](widget/widget.test.ts) - jsdom-based runtime checks: loads the bundle into Vitest's jsdom, runs the inlined script via `new Function()` (because jsdom does not execute `<script type="module">` natively), then exercises clicks, input events, the remove checkbox, and verifies `sendPrompt` is called with the right payload.
+
+This is the layer that catches "the script runs but nothing happens" bugs - exactly what the eval suite (which only grades static HTML) cannot.
+
+Run on every PR via `.github/workflows/build.yml`. Also runs in the release workflow before the zip step, so a broken bundle cannot reach a release.
+
+## Surface 2: Manual trigger walkthrough
 
 The checklist lives at [`tests/trigger-cases.md`](trigger-cases.md). 8 prompts you type into a fresh Claude Code session in an unrelated directory. Activate-or-skip decisions are observable in CC's output (does it read `SKILL.md`, reference `assets/widget-bundled.html`, attempt `show_widget`?).
 
 Use this as a quick sanity check whenever you touch the description.
 
-## Surface 2: Programmatic eval suite
+## Surface 3: Programmatic eval suite
 
 Scaffold lives in [`tests/evals/`](evals/). Each iteration:
 
@@ -62,7 +74,7 @@ You can also run `pnpm dev` to open the widget in a local browser for visual smo
 
 The most informative scenario was `verbatim-awkward-phrasing`: the baseline rewrote the awkward OKRs into "improved" versions; the skill kept them byte-identical. That's the verbatim rule working as designed.
 
-## Surface 3: Description optimization (currently broken)
+## Surface 4: Description optimization (currently broken)
 
 Anthropic's `skill-creator` ships a `run_loop.py` description tuner. We tried it for this skill and got `recall=0%` across all iterations - no proposed description was ever able to trigger the skill in the optimizer's harness.
 

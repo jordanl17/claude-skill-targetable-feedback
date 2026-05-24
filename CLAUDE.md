@@ -14,7 +14,7 @@ This repo is the `targetable-feedback` Claude skill - a `SKILL.md` + interactive
 
 ## Before changing the skill, read the testing docs
 
-[`tests/EVALS.md`](tests/EVALS.md) is the entry point. It explains three test surfaces (manual trigger walkthrough, programmatic eval suite, description tuning) and tells you which to run based on what you're changing. **Do not skip it.** Changes to `SKILL.md` or `assets/widget-bundled.html` should be backed by either Surface 1 or Surface 2.
+[`tests/EVALS.md`](tests/EVALS.md) is the entry point. It explains four test surfaces (Vitest unit/integration, manual trigger walkthrough, programmatic eval suite, description tuning) and tells you which to run based on what you're changing. **Do not skip it.** Changes to `widget-src/` should be backed by Surface 1 (Vitest, runs on every PR). Changes to `SKILL.md` or parsing rules should be backed by Surface 2 or Surface 3.
 
 ## Release pipeline
 
