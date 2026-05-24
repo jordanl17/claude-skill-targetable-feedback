@@ -32,7 +32,7 @@ Scaffold lives in [`tests/evals/`](evals/). Each iteration:
 
 1. **Pick an iteration number** (last one is in `targetable-feedback-workspace/iteration-N`). Iteration 1 was run at skill v0.3.0; current main is v0.4.0+, so iteration 2 is the next one.
 2. **Read [`tests/evals/orchestrator.md`](evals/orchestrator.md).** It has the setup commands and the two prompt templates (with_skill + baseline). A Claude Code agent spawns 18 background subagents in one Agent-tool batch and the system notifies on each completion.
-3. **Grade** when all 16 are done:
+3. **Grade** when all 18 are done:
    ```bash
    pnpm eval:grade targetable-feedback-workspace/iteration-N
    ```
