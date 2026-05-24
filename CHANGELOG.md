@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.2](https://github.com/jordanl17/claude-skill-targetable-feedback/compare/v0.4.1...v0.4.2) (2026-05-24)
+
+
+### Bug Fixes
+
+* bundle widget at build time, tighten SKILL.md, fix remove-checkbox ([249264b](https://github.com/jordanl17/claude-skill-targetable-feedback/commit/249264bc8d3049c4ef6b60df131c309f674893ab))
+
 ## [0.4.1](https://github.com/jordanl17/claude-skill-targetable-feedback/compare/v0.4.0...v0.4.1) (2026-05-22)
 
 
