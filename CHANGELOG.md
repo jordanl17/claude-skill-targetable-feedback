@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.3](https://github.com/jordanl17/claude-skill-targetable-feedback/compare/v0.4.2...v0.4.3) (2026-05-24)
+
+
+### Bug Fixes
+
+* resolving eval mismatch ([239c9ad](https://github.com/jordanl17/claude-skill-targetable-feedback/commit/239c9ad6b593c0af0fb63ac5a2d8d9bdf761e545))
+
 ## [0.4.2](https://github.com/jordanl17/claude-skill-targetable-feedback/compare/v0.4.1...v0.4.2) (2026-05-24)
 
 
