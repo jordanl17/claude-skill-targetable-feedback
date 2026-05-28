@@ -4,7 +4,7 @@
   "version": "0.4.2",
   "type": "module",
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=24.0.0"
   },
   "scripts": {
     "build": "vite build",
@@ -26,7 +26,10 @@
   },
   "devDependencies": {
     "@types/jsdom": "^21.1.0",
-    "@types/node": "^20.0.0",
+    "@types/node": "^24.0.0",
+    "@visill/build": "rc",
+    "@visill/sdk": "rc",
+    "@visill/test": "rc",
     "husky": "^9.1.0",
     "jsdom": "^25.0.0",
     "lightningcss": "^1.32.0",
@@ -40,5 +43,12 @@
     "vite-plugin-singlefile": "~2.3.3",
     "vitest": "^2.1.0"
   },
-  "packageManager": "pnpm@10.10.0"
+  "packageManager": "pnpm@10.10.0",
+  "pnpm": {
+    "overrides": {
+      "@visill/sdk": "link:../visill/packages/visill",
+      "@visill/build": "link:../visill/packages/visill-build",
+      "@visill/test": "link:../visill/packages/visill-test"
+    }
+  }
 }

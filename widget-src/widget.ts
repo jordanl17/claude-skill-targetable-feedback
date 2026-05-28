@@ -1,4 +1,4 @@
-export {};
+import { ownDescendant, requireElement, sendPrompt } from '@visill/sdk';
 
 type UnitElement = HTMLDivElement;
 type GuidanceInput = HTMLTextAreaElement;
@@ -6,28 +6,13 @@ type GuidanceInput = HTMLTextAreaElement;
 const guidance = new Map<string, string>();
 const removed = new Set<string>();
 
-const requireElement = <ElementType extends Element>(selector: string): ElementType => {
-  const found = document.querySelector(selector);
-  if (!found) throw new Error(`Required element not found: ${selector}`);
-  return found as ElementType;
-};
-
 const requireDataset = (unit: UnitElement, key: 'id' | 'snippet'): string => {
   const value = unit.dataset[key];
-  if (!value) throw new Error(`Unit element missing data-${key}`);
+  if (value === undefined || value.length === 0) {
+    throw new Error(`Unit element missing data-${key}`);
+  }
   return value;
 };
-
-// Units can nest (sub-units), so unit.querySelectorAll('.guidance-input')
-// returns inputs belonging to nested children too. Filter to only the input
-// whose nearest `.unit` ancestor is this unit.
-const ownDescendant = <ElementType extends Element>(
-  unit: UnitElement,
-  selector: string,
-): ElementType | undefined =>
-  Array.from(unit.querySelectorAll<ElementType>(selector)).find(
-    (element) => element.closest('.unit') === unit,
-  );
 
 const autosize = (textarea: GuidanceInput): void => {
   textarea.style.height = 'auto';
@@ -63,27 +48,27 @@ document.querySelectorAll<HTMLDivElement>('.guidance-wrap').forEach((wrap) => {
 document.querySelectorAll<UnitElement>('.unit').forEach((unit) => {
   unit.addEventListener('click', (event) => {
     const target = event.target;
-    if (!(target instanceof Element)) return;
-    if (target.closest('.unit') !== unit) return;
-    if (target instanceof HTMLTextAreaElement) return;
-    if (target.closest('.clear-x') || target.closest('.remove-toggle')) return;
+    if (target instanceof Element) {
+      if (target.closest('.unit') !== unit) return;
+      if (target instanceof HTMLTextAreaElement) return;
+      if (target.closest('.clear-x') || target.closest('.remove-toggle')) return;
+    } else {
+      return;
+    }
 
     document.querySelectorAll<UnitElement>('.unit.open').forEach((otherUnit) => {
-      if (
-        otherUnit !== unit &&
-        !otherUnit.classList.contains('marked') &&
-        !otherUnit.classList.contains('removing')
-      ) {
-        otherUnit.classList.remove('open');
-      }
+      if (otherUnit === unit) return;
+      if (otherUnit.classList.contains('marked')) return;
+      if (otherUnit.classList.contains('removing')) return;
+      otherUnit.classList.remove('open');
     });
     unit.classList.add('open');
-    const input = ownDescendant<GuidanceInput>(unit, '.guidance-input');
+    const input = ownDescendant<GuidanceInput>(unit, '.guidance-input', '.unit');
     setTimeout(() => {
-      if (input && !input.disabled) {
-        input.focus();
-        autosize(input);
-      }
+      if (input === undefined) return;
+      if (input.disabled) return;
+      input.focus();
+      autosize(input);
     }, 30);
   });
 });
@@ -94,10 +79,10 @@ document.querySelectorAll<GuidanceInput>('.guidance-input').forEach((input) => {
   input.addEventListener('input', () => {
     autosize(input);
     const unit = input.closest<UnitElement>('.unit');
-    if (!unit) return;
+    if (unit === null) return;
     const unitId = requireDataset(unit, 'id');
     const trimmed = input.value.trim();
-    if (trimmed) {
+    if (trimmed.length > 0) {
       guidance.set(unitId, input.value);
       unit.classList.add('marked');
     } else {
@@ -109,7 +94,7 @@ document.querySelectorAll<GuidanceInput>('.guidance-input').forEach((input) => {
 
   input.addEventListener('blur', (event) => {
     const unit = input.closest<UnitElement>('.unit');
-    if (!unit) return;
+    if (unit === null) return;
     const focusTarget = event.relatedTarget;
     if (
       focusTarget instanceof Element &&
@@ -117,9 +102,9 @@ document.querySelectorAll<GuidanceInput>('.guidance-input').forEach((input) => {
     ) {
       return;
     }
-    if (!input.value.trim() && !unit.classList.contains('removing')) {
-      unit.classList.remove('open');
-    }
+    if (input.value.trim().length > 0) return;
+    if (unit.classList.contains('removing')) return;
+    unit.classList.remove('open');
   });
 
   input.addEventListener('keydown', (event) => {
@@ -131,9 +116,9 @@ document.querySelectorAll<HTMLButtonElement>('.clear-x').forEach((button) => {
   button.addEventListener('click', (event) => {
     event.stopPropagation();
     const unit = button.closest<UnitElement>('.unit');
-    if (!unit) return;
-    const input = ownDescendant<GuidanceInput>(unit, '.guidance-input');
-    if (input) {
+    if (unit === null) return;
+    const input = ownDescendant<GuidanceInput>(unit, '.guidance-input', '.unit');
+    if (input !== undefined) {
       input.value = '';
       autosize(input);
     }
@@ -148,16 +133,16 @@ document.querySelectorAll<HTMLInputElement>('.remove-checkbox').forEach((checkbo
 
   checkbox.addEventListener('change', () => {
     const unit = checkbox.closest<UnitElement>('.unit');
-    if (!unit) return;
+    if (unit === null) return;
     const unitId = requireDataset(unit, 'id');
-    const input = ownDescendant<GuidanceInput>(unit, '.guidance-input');
+    const input = ownDescendant<GuidanceInput>(unit, '.guidance-input', '.unit');
     unit.classList.add('open');
     if (checkbox.checked) {
       removed.add(unitId);
       unit.classList.add('removing');
       unit.classList.remove('marked');
       guidance.delete(unitId);
-      if (input) {
+      if (input !== undefined) {
         input.value = '';
         input.disabled = true;
         autosize(input);
@@ -165,7 +150,7 @@ document.querySelectorAll<HTMLInputElement>('.remove-checkbox').forEach((checkbo
     } else {
       removed.delete(unitId);
       unit.classList.remove('removing');
-      if (input) input.disabled = false;
+      if (input !== undefined) input.disabled = false;
     }
     updateBar();
   });
@@ -176,21 +161,21 @@ clearAllButton.addEventListener('click', () => {
   removed.clear();
   document.querySelectorAll<UnitElement>('.unit').forEach((unit) => {
     unit.classList.remove('marked', 'open', 'removing');
-    const input = ownDescendant<GuidanceInput>(unit, '.guidance-input');
-    if (input) {
+    const input = ownDescendant<GuidanceInput>(unit, '.guidance-input', '.unit');
+    if (input !== undefined) {
       input.value = '';
       input.disabled = false;
       autosize(input);
     }
-    const checkbox = ownDescendant<HTMLInputElement>(unit, '.remove-checkbox');
-    if (checkbox) checkbox.checked = false;
+    const checkbox = ownDescendant<HTMLInputElement>(unit, '.remove-checkbox', '.unit');
+    if (checkbox !== undefined) checkbox.checked = false;
   });
   updateBar();
 });
 
 const formatChange = (unitId: string, body: string): string[] => {
   const unit = document.querySelector<UnitElement>(`.unit[data-id="${unitId}"]`);
-  if (!unit) return [];
+  if (unit === null) return [];
   return [`Unit ${unitId} ("${requireDataset(unit, 'snippet')}"): ${body}`];
 };
 

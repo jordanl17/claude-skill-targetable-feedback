@@ -1,0 +1,18 @@
+# CI-only npmrc. Activated by .github/workflows/build.yml before `pnpm install`
+# so CI resolves the published @visill/* rc tarballs from npm instead of the
+# `link:../visill/packages/*` paths declared in package.json's `pnpm.overrides`
+# block (those paths only exist on a developer laptop with the visill repo
+# checked out as a sibling).
+#
+# pnpm 10.x exposes no built-in flag or env var to skip `pnpm.overrides`
+# (verified against https://pnpm.io/settings, https://pnpm.io/npmrc, and
+# https://pnpm.io/cli/install). The workflow therefore strips the block from
+# package.json before install. Because that mutation invalidates the committed
+# pnpm-lock.yaml (which encodes the link: resolutions), we disable the frozen
+# lockfile here so pnpm can re-resolve against the registry.
+#
+# How T16's build.yml is expected to apply this file:
+#   - run: cp .npmrc.ci .npmrc
+#   - run: node -e "const fs=require('fs');const p=JSON.parse(fs.readFileSync('package.json','utf8'));delete p.pnpm;fs.writeFileSync('package.json',JSON.stringify(p,null,2)+'\n')"
+#   - run: pnpm install --no-frozen-lockfile
+prefer-frozen-lockfile=false
