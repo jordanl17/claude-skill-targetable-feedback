@@ -3,6 +3,12 @@ name: build
 on:
   pull_request:
     branches: [main]
+  push:
+    branches: [visill-migration]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -10,13 +16,94 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
+        with:
+          version: 10.10.0
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
           cache: 'pnpm'
-      - run: pnpm install --frozen-lockfile
+      - name: Activate CI install recipe
+        # pnpm.overrides link: paths only exist on a developer laptop with the
+        # visill repo checked out as a sibling. CI installs the published RC
+        # by stripping the overrides block. See .npmrc.ci for details.
+        run: |
+          cp .npmrc.ci .npmrc
+          jq 'del(.pnpm)' package.json > package.json.tmp && mv package.json.tmp package.json
+      - run: pnpm install --no-frozen-lockfile
       - run: pnpm format:check
       - run: pnpm lint
       - run: pnpm type-check
       - run: pnpm build
       - run: pnpm test
+
+  parity-check:
+    # Compares the migration-branch zip against the prior main SHA's zip
+    # to enforce the five parity gates from PRD 007 §6.
+    if: github.ref == 'refs/heads/visill-migration' || github.head_ref == 'visill-migration'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout migration branch
+        uses: actions/checkout@v4
+        with:
+          path: migration
+          fetch-depth: 0
+
+      - name: Resolve prior main SHA
+        id: prior-main
+        working-directory: migration
+        run: |
+          git fetch origin main --depth=1
+          PRIOR_MAIN_SHA=$(git merge-base origin/main HEAD)
+          echo "sha=${PRIOR_MAIN_SHA}" >> "$GITHUB_OUTPUT"
+          echo "Prior main SHA: ${PRIOR_MAIN_SHA}"
+
+      - name: Checkout prior main
+        uses: actions/checkout@v4
+        with:
+          path: prior-main
+          ref: ${{ steps.prior-main.outputs.sha }}
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.10.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+          cache-dependency-path: migration/pnpm-lock.yaml
+
+      - name: Build migration-branch zip
+        working-directory: migration
+        run: |
+          cp .npmrc.ci .npmrc
+          # Strip pnpm.overrides via jq; the .npmrc.ci documented node -e snippet
+          # uses require() which breaks under "type": "module".
+          jq 'del(.pnpm)' package.json > package.json.tmp && mv package.json.tmp package.json
+          pnpm install --no-frozen-lockfile
+          pnpm build:zip
+
+      - name: Build prior-main zip
+        working-directory: prior-main
+        run: |
+          # Prior main predates the @visill/* migration, so it installs as-is
+          # with the lockfile committed at that SHA.
+          pnpm install --frozen-lockfile
+          pnpm build:zip
+
+      - name: Run parity gates
+        env:
+          STRUCTURAL_DIFF_SCRIPT: ${{ github.workspace }}/migration/node_modules/@visill/test/scripts/structural-html-diff.mjs
+        run: |
+          bash migration/scripts/parity-check.sh \
+            migration/targetable-feedback.zip \
+            prior-main/targetable-feedback.zip
+
+      - name: Upload parity report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: parity-report
+          path: parity-report.json
+          if-no-files-found: ignore
